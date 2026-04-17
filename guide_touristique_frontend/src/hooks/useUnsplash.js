@@ -20,7 +20,7 @@ const useUnsplash = (query) => {
         if (!apiKey) throw new Error('Unsplash API key not configured');
 
         const response = await fetch(
-          `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=5&client_id=${apiKey}`
+          `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=8&client_id=${apiKey}`
         );
 
         if (!response.ok) throw new Error('Failed to fetch images');

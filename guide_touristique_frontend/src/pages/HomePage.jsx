@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUnsplash from '../hooks/useUnsplash';
-
+import useWikipedia from '../hooks/useWikipedia';
 const HomePage = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -11,9 +11,9 @@ const HomePage = () => {
   const [meteo, setmeteo] = useState(null);
   const [error, setError] = useState(null);
   const [scrollY, setScrollY] = useState(0);
-  
+   
   const { images, loading: imagesLoading, error: imagesError } = useUnsplash(imageQuery);
-
+const { description, loading,  getDescription } = useWikipedia();
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
@@ -46,12 +46,13 @@ const HomePage = () => {
 
       const cityLat = data[0].lat;
       const cityLon = data[0].lon;
-
+       getDescription(query2);
+     
       const response2 = await fetch(
         `https://api.open-meteo.com/v1/forecast?latitude=${cityLat}&longitude=${cityLon}&current_weather=true`
       );
       const data2 = await response2.json();
-
+     
       setmeteo(data2);
       setError(null);
     } catch (err) {
@@ -384,7 +385,17 @@ const HomePage = () => {
               </div>
             </div>
           )}
+          {loading && <p>Loading description...</p>}
 
+{description && (
+    <div style={styles.resultContainer}>
+        <h3 style={styles.resultTitle}>📖 About</h3>
+        {/* Wikipedia extracts can be very long — limit to first 300 chars */}
+        <p style={{ color: '#9ca3af', lineHeight: '1.8' }}>
+            {description.slice(0, 300)}...
+        </p>
+    </div>
+)}
           {/* Images Result */}
           {imagesLoading && imageQuery && (
             <div style={styles.loadingText}>Loading images...</div>
