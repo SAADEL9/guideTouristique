@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { searchImages } from '../api/unsplashService';
 
 const useUnsplash = (query) => {
   const [images, setImages] = useState(null);
@@ -16,21 +17,13 @@ const useUnsplash = (query) => {
       setLoading(true);
       setError(null);
       try {
-        const apiKey = process.env.REACT_APP_UNSPLASH_KEY;
-        if (!apiKey) throw new Error('Unsplash API key not configured');
-
-        const response = await fetch(
-          `https://api.unsplash.com/search/photos?query=${encodeURIComponent(query)}&per_page=8&client_id=${apiKey}`
-        );
-
-        if (!response.ok) throw new Error('Failed to fetch images');
-        const data = await response.json();
-
-        if (data.results.length === 0) {
+        const results = await searchImages(query, 8);
+        
+        if (results.length === 0) {
           setImages([]);
           setError('No images found');
         } else {
-          setImages(data.results);
+          setImages(results);
         }
       } catch (err) {
         setError(err.message);

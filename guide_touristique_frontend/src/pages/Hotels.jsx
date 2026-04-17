@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { getLocationCoordinates } from '../api/locationService';
+import { getHotels } from '../api/placesService';
 
 // ─── Fix default marker icon bug ─────────────────────────────────────────────
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
@@ -37,24 +39,11 @@ const Hotels = () => {
 
         try {
             // ─── Get city coordinates for map center ──────────────────────
-            const geoRes = await fetch(
-                `https://nominatim.openstreetmap.org/search?q=${city}&format=json`
-            );
-            const geoData = await geoRes.json();
-
-            if (geoData.length === 0) throw new Error('City not found');
-
-            const lat = parseFloat(geoData[0].lat);
-            const lon = parseFloat(geoData[0].lon);
-            setMapCenter([lat, lon]);
+            const coordinates = await getLocationCoordinates(city);
+            setMapCenter([coordinates.lat, coordinates.lon]);
 
             // ─── Fetch hotels from your Spring Boot backend ───────────────
-            const res = await fetch(
-                `http://localhost:8080/api/places/hotels?city=${city}`
-            );
-            if (!res.ok) throw new Error('Failed to fetch hotels');
-
-            const data = await res.json();
+            const data = await getHotels(city);
             setHotels(data);
 
         } catch (err) {

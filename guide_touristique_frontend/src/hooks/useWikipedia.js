@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { fetchWikiDescription } from '../api/wikipediaApi';
+import { fetchWikiDescription } from '../api/wikipediaService';
 
 const useWikipedia = () => {
     const [description, setDescription] = useState(null);

@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUnsplash from '../hooks/useUnsplash';
 import useWikipedia from '../hooks/useWikipedia';
+import { searchCountry } from '../api/countryService';
+import { searchLocation } from '../api/locationService';
+import { getCurrentWeather } from '../api/weatherService';
 const HomePage = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
@@ -13,7 +16,7 @@ const HomePage = () => {
   const [scrollY, setScrollY] = useState(0);
    
   const { images, loading: imagesLoading, error: imagesError } = useUnsplash(imageQuery);
-const { description, loading,  getDescription } = useWikipedia();
+  const { description, loading,  getDescription } = useWikipedia();
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll);
@@ -23,10 +26,8 @@ const { description, loading,  getDescription } = useWikipedia();
   const handleSearch = async () => {
     if (!query) return;
     try {
-      const response = await fetch(`https://restcountries.com/v3.1/name/${query}`);
-      if (!response.ok) throw new Error('Country not found');
-      const data = await response.json();
-      setCountry(data[0]);
+      const data = await searchCountry(query);
+      setCountry(data);
       setError(null);
     } catch (err) {
       setError(err.message);
@@ -38,22 +39,20 @@ const { description, loading,  getDescription } = useWikipedia();
     if (!query2) return;
     setImageQuery(query2);
     try {
-      const response = await fetch(`https://nominatim.openstreetmap.org/search?q=${query2}&format=json`);
-      if (!response.ok) throw new Error('City not found');
-      const data = await response.json();
-
-      if (data.length === 0) throw new Error('City not found');
-
-      const cityLat = data[0].lat;
-      const cityLon = data[0].lon;
-       getDescription(query2);
-     
-      const response2 = await fetch(
-        `https://api.open-meteo.com/v1/forecast?latitude=${cityLat}&longitude=${cityLon}&current_weather=true`
-      );
-      const data2 = await response2.json();
-     
-      setmeteo(data2);
+      const location = await searchLocation(query2);
+      const weather = await getCurrentWeather(location.lat, location.lon);
+      
+      getDescription(query2);
+      
+      // Format the response to match the expected structure
+      setmeteo({
+        current_weather: {
+          temperature: weather.temperature,
+          windspeed: weather.windSpeed,
+          winddirection: weather.windDirection,
+          time: weather.time
+        }
+      });
       setError(null);
     } catch (err) {
       setError(err.message);
