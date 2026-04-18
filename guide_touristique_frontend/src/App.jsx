@@ -7,8 +7,9 @@ import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
-import Hotels from './pages/Hotels';
 
+import HotelsPage from './pages/HotelsPage';
+import HotelDetailPage from './pages/HotelDetailPage';
 function App() {
   const appStyles = {
     minHeight: '100vh',
@@ -26,7 +27,8 @@ function App() {
         <main style={{ flex: 1 }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route path="/hotels" element={<Hotels />} />
+            <Route path="/hotels" element={<HotelsPage />} />
+            <Route path="/hotels/:hotelId" element={<HotelDetailPage />} /> 
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/dashboard" element={<Dashboard />} />

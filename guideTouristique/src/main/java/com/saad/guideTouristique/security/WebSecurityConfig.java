@@ -82,6 +82,7 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/api/places/**").permitAll()
+                        .requestMatchers("/api/hotels/**").permitAll()
                         .anyRequest().authenticated()
                 );
 

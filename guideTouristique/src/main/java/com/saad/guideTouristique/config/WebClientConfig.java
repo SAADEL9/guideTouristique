@@ -1,6 +1,7 @@
 package com.saad.guideTouristique.config;
 
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +13,12 @@ public class WebClientConfig {
     public WebClient webClient() {
         return WebClient.builder()
                 .baseUrl("https://api.geoapify.com")
+                .build();
+    }
+    @Bean("liteApiClient")
+    public WebClient liteApiWebClient() {
+        return WebClient.builder()
+                .baseUrl("https://api.liteapi.travel")
                 .build();
     }
 }
