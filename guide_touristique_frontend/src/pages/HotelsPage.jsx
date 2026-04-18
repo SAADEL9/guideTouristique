@@ -15,6 +15,7 @@ const HotelsPage = () => {
     return (
         <div style={styles.container}>
             <h1 style={styles.title}>🏨 Find Hotels</h1>
+            <p style={styles.titleSub}>Search by city and country code to browse stays.</p>
 
             {/* Search Bar */}
             <div style={styles.searchBar}>
@@ -75,23 +76,27 @@ const HotelsPage = () => {
     );
 };
 
+const accent = '#0284c7';
+const border = '#e2e8f0';
+
 const styles = {
-    container: { padding: '40px', backgroundColor: '#0a0e1a', minHeight: '100vh', color: '#fff' },
-    title: { textAlign: 'center', fontSize: '36px', marginBottom: '30px', color: '#3b82f6' },
-    searchBar: { display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '40px' },
-    input: { padding: '12px 16px', borderRadius: '10px', border: '1px solid #1e2a3a', backgroundColor: '#161b22', color: '#fff', fontSize: '16px' },
-    btn: { padding: '12px 24px', backgroundColor: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', cursor: 'pointer', fontSize: '16px', fontWeight: '600' },
-    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px', maxWidth: '1200px', margin: '0 auto' },
-    card: { backgroundColor: '#161b22', borderRadius: '16px', overflow: 'hidden', cursor: 'pointer', border: '1px solid #1e2a3a', transition: 'transform 0.2s' },
+    container: { padding: '32px 24px 48px', backgroundColor: '#f8fafc', minHeight: '100vh', color: '#0f172a' },
+    title: { textAlign: 'center', fontSize: 'clamp(28px, 4vw, 36px)', marginBottom: '8px', color: '#0f172a', fontWeight: 800 },
+    titleSub: { textAlign: 'center', color: '#64748b', marginBottom: '28px', fontSize: '15px' },
+    searchBar: { display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '36px', flexWrap: 'wrap' },
+    input: { padding: '12px 18px', borderRadius: '999px', border: `1px solid ${border}`, backgroundColor: '#ffffff', color: '#0f172a', fontSize: '15px', boxShadow: '0 1px 2px rgba(15,23,42,0.05)' },
+    btn: { padding: '12px 26px', backgroundColor: accent, color: '#fff', border: 'none', borderRadius: '999px', cursor: 'pointer', fontSize: '15px', fontWeight: 700, boxShadow: '0 4px 14px rgba(2, 132, 199, 0.35)' },
+    grid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '22px', maxWidth: '1200px', margin: '0 auto' },
+    card: { backgroundColor: '#ffffff', borderRadius: '16px', overflow: 'hidden', cursor: 'pointer', border: `1px solid ${border}`, transition: 'box-shadow 0.2s, transform 0.2s', boxShadow: '0 4px 24px rgba(15, 23, 42, 0.06)' },
     cardImg: { width: '100%', height: '200px', objectFit: 'cover' },
-    cardBody: { padding: '16px' },
-    hotelName: { fontSize: '18px', fontWeight: '700', marginBottom: '8px', color: '#e8eaf0' },
-    address: { fontSize: '13px', color: '#9ca3af', marginBottom: '10px' },
+    cardBody: { padding: '18px' },
+    hotelName: { fontSize: '17px', fontWeight: '700', marginBottom: '8px', color: '#0f172a' },
+    address: { fontSize: '13px', color: '#64748b', marginBottom: '10px' },
     row: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
     stars: { fontSize: '14px' },
-    score: { fontSize: '13px', color: '#3b82f6', fontWeight: '600' },
-    msg: { textAlign: 'center', color: '#9ca3af' },
-    error: { textAlign: 'center', color: '#ef4444' },
+    score: { fontSize: '13px', color: accent, fontWeight: '600' },
+    msg: { textAlign: 'center', color: '#64748b' },
+    error: { textAlign: 'center', color: '#dc2626', fontWeight: 600 },
 };
 
 export default HotelsPage;

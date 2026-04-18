@@ -1,457 +1,522 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUnsplash from '../hooks/useUnsplash';
 import useWikipedia from '../hooks/useWikipedia';
-import { searchCountry } from '../api/countryService';
 import { searchLocation } from '../api/locationService';
-import { getCurrentWeather } from '../api/weatherService';
+import { weatherClient } from '../api/externalClients';
+
+const getWeatherIcon = (code) => {
+  if (code === 0) return '☀️';
+  if (code <= 2) return '⛅';
+  if (code === 3) return '☁️';
+  if (code <= 49) return '🌫️';
+  if (code <= 59) return '🌦️';
+  if (code <= 69) return '🌧️';
+  if (code <= 79) return '❄️';
+  if (code <= 99) return '⛈️';
+  return '🌡️';
+};
+
+const NAV_OFFSET = 70;
+
 const HomePage = () => {
   const navigate = useNavigate();
   const [query, setQuery] = useState('');
-  const [query2, setQuery2] = useState('');
   const [imageQuery, setImageQuery] = useState('');
-  const [country, setCountry] = useState(null);
-  const [meteo, setmeteo] = useState(null);
+  const [weatherData, setWeatherData] = useState(null);
   const [error, setError] = useState(null);
-  const [scrollY, setScrollY] = useState(0);
-   
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
   const { images, loading: imagesLoading, error: imagesError } = useUnsplash(imageQuery);
-  const { description, loading,  getDescription } = useWikipedia();
-  useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const { description, loading, getDescription } = useWikipedia();
+
+  const hasSearched = Boolean(imageQuery.trim());
 
   const handleSearch = async () => {
-    if (!query) return;
+    if (!query.trim()) return;
+
+    setImageQuery(query.trim());
+    setCurrentImageIndex(0);
+
     try {
-      const data = await searchCountry(query);
-      setCountry(data);
+      const location = await searchLocation(query.trim());
+      const weatherRes = await weatherClient.get('/forecast', {
+        params: {
+          latitude: location.lat,
+          longitude: location.lon,
+          daily:
+            'temperature_2m_max,temperature_2m_min,weathercode,precipitation_sum,windspeed_10m_max',
+          current_weather: true,
+          timezone: 'auto',
+          forecast_days: 7,
+        },
+      });
+
+      getDescription(query.trim());
+      setWeatherData(weatherRes.data);
       setError(null);
     } catch (err) {
       setError(err.message);
-      setCountry(null);
+      setWeatherData(null);
     }
   };
 
-  const handleSearch2 = async () => {
-    if (!query2) return;
-    setImageQuery(query2);
-    try {
-      const location = await searchLocation(query2);
-      const weather = await getCurrentWeather(location.lat, location.lon);
-      
-      getDescription(query2);
-      
-      // Format the response to match the expected structure
-      setmeteo({
-        current_weather: {
-          temperature: weather.temperature,
-          windspeed: weather.windSpeed,
-          winddirection: weather.windDirection,
-          time: weather.time
-        }
-      });
-      setError(null);
-    } catch (err) {
-      setError(err.message);
-      setmeteo(null);
-    }
+  const galleryImages = images ? images.slice(0, 5) : [];
+
+  const handlePrevImage = () => {
+    if (galleryImages.length === 0) return;
+    setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
+  };
+
+  const handleNextImage = () => {
+    if (galleryImages.length === 0) return;
+    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
+  };
+
+  const palette = {
+    bg: '#f8fafc',
+    surface: '#ffffff',
+    accent: '#0284c7',
+    text: '#0f172a',
+    muted: '#64748b',
+    border: '#e2e8f0',
+    rain: '#0369a1',
+  };
+
+  const searchBarStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    width: '100%',
+    height: '56px',
+    background: palette.surface,
+    border: `1px solid ${palette.border}`,
+    borderRadius: '999px',
+    paddingLeft: '22px',
+    paddingRight: '6px',
+    boxSizing: 'border-box',
+    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
+  };
+
+  const searchInputStyle = {
+    flex: 1,
+    minWidth: 0,
+    height: '100%',
+    border: 'none',
+    background: 'transparent',
+    color: palette.text,
+    fontSize: '17px',
+    outline: 'none',
+  };
+
+  const searchBtnStyle = {
+    background: palette.accent,
+    color: '#ffffff',
+    borderRadius: '999px',
+    padding: '11px 28px',
+    border: 'none',
+    fontWeight: 700,
+    fontSize: '15px',
+    cursor: 'pointer',
+    flexShrink: 0,
   };
 
   const styles = {
-    hero: {
+    page: {
+      background: palette.bg,
       minHeight: '100vh',
+    },
+    hero: {
+      minHeight: `calc(100vh - ${NAV_OFFSET}px)`,
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      background: `linear-gradient(135deg, #0a0e1a 0%, #1a1f3a 50%, #0d1424 100%)`,
-      color: '#e8eaf0',
       textAlign: 'center',
-      padding: '120px 20px 80px',
-      position: 'relative',
-      overflow: 'hidden',
+      padding: '48px 24px 64px',
+      background: `linear-gradient(180deg, #ffffff 0%, ${palette.bg} 100%)`,
     },
-    animatedBg: {
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: `radial-gradient(circle at ${50 + scrollY * 0.02}% ${50 + scrollY * 0.01}%, rgba(59, 130, 246, 0.1) 0%, transparent 50%)`,
-      pointerEvents: 'none',
+    heroTitle: {
+      fontSize: 'clamp(40px, 8vw, 72px)',
+      fontWeight: 900,
+      color: palette.text,
+      letterSpacing: '-2px',
+      margin: '0 0 16px',
+      lineHeight: 1.05,
     },
-    title: {
-      fontSize: '64px',
-      fontWeight: '800',
-      marginBottom: '20px',
-      background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 50%, #ec4899 100%)',
-      WebkitBackgroundClip: 'text',
-      WebkitTextFillColor: 'transparent',
-      position: 'relative',
-      zIndex: 1,
-      letterSpacing: '-1px',
+    heroSubtitle: {
+      fontSize: '19px',
+      color: palette.muted,
+      margin: '0 0 36px',
+      maxWidth: '520px',
+      lineHeight: 1.6,
     },
-    subtitle: {
-      fontSize: '20px',
-      color: '#9ca3af',
-      marginBottom: '50px',
-      maxWidth: '600px',
-      lineHeight: '1.6',
-      position: 'relative',
-      zIndex: 1,
-    },
-    searchContainer: {
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '20px',
+    searchOuter: {
       width: '100%',
-      maxWidth: '600px',
-      position: 'relative',
-      zIndex: 1,
+      maxWidth: '700px',
     },
-    searchBox: {
-      display: 'flex',
-      gap: '10px',
-      backgroundColor: 'rgba(22, 27, 34, 0.8)',
-      backdropFilter: 'blur(10px)',
-      padding: '15px',
+    stickySearchWrap: {
+      position: 'sticky',
+      top: NAV_OFFSET,
+      zIndex: 50,
+      background: 'rgba(255, 255, 255, 0.92)',
+      backdropFilter: 'blur(12px)',
+      WebkitBackdropFilter: 'blur(12px)',
+      borderBottom: `1px solid ${palette.border}`,
+      boxShadow: '0 4px 24px rgba(15, 23, 42, 0.06)',
+    },
+    stickyInner: {
+      maxWidth: '900px',
+      margin: '0 auto',
+      padding: '16px 20px',
+    },
+    resultsWrap: {
+      background: palette.bg,
+      color: palette.text,
+    },
+    resultsInner: {
+      maxWidth: '900px',
+      margin: '0 auto',
+      padding: '32px 20px 48px',
+    },
+    galleryImg: {
+      width: '100%',
+      height: '450px',
+      objectFit: 'cover',
       borderRadius: '16px',
-      border: '1px solid rgba(59, 130, 246, 0.2)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-      transition: 'all 0.3s ease',
+      display: 'block',
+      border: `1px solid ${palette.border}`,
+      boxShadow: '0 10px 40px rgba(15, 23, 42, 0.08)',
     },
-    input: {
-      flex: 1,
-      padding: '12px 16px',
-      border: 'none',
-      backgroundColor: 'transparent',
-      color: '#fff',
-      fontSize: '16px',
-      outline: 'none',
+    galleryNav: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '24px',
+      marginTop: '18px',
+      flexWrap: 'wrap',
     },
-    primaryBtn: {
-      backgroundColor: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-      backgroundImage: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-      color: '#ffffff',
-      border: 'none',
-      padding: '12px 24px',
-      borderRadius: '12px',
+    pillNavBtn: {
+      background: palette.surface,
+      border: `1px solid ${palette.border}`,
+      color: palette.text,
+      borderRadius: '999px',
+      padding: '10px 26px',
       cursor: 'pointer',
+      fontSize: '14px',
+      fontWeight: 600,
+    },
+    imageCounter: {
+      color: palette.muted,
+      fontSize: '14px',
+      minWidth: '56px',
+      textAlign: 'center',
+    },
+    sectionTitleBar: {
+      borderLeft: `4px solid ${palette.accent}`,
+      paddingLeft: '12px',
+      fontSize: '20px',
+      fontWeight: 700,
+      color: palette.text,
+      margin: '40px 0 16px',
+    },
+    forecastRow: {
+      display: 'flex',
+      gap: '12px',
+      overflowX: 'auto',
+      paddingBottom: '8px',
+      WebkitOverflowScrolling: 'touch',
+    },
+    forecastCard: {
+      background: palette.surface,
+      borderRadius: '14px',
+      padding: '18px',
+      minWidth: '110px',
+      textAlign: 'center',
+      flexShrink: 0,
+      border: `1px solid ${palette.border}`,
+      boxShadow: '0 1px 3px rgba(15, 23, 42, 0.06)',
+    },
+    currentWeatherCard: {
+      background: palette.surface,
+      borderRadius: '16px',
+      padding: '28px',
+      marginTop: '8px',
+      border: `1px solid ${palette.border}`,
+      boxShadow: '0 4px 24px rgba(15, 23, 42, 0.06)',
+    },
+    bigTemp: {
+      fontSize: '56px',
+      fontWeight: 900,
+      color: palette.text,
+      margin: 0,
+      lineHeight: 1,
+    },
+    descText: {
+      color: palette.muted,
       fontSize: '16px',
-      fontWeight: '600',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 15px rgba(59, 130, 246, 0.4)',
+      lineHeight: 1.85,
+      margin: 0,
+    },
+    descCard: {
+      background: palette.surface,
+      borderRadius: '16px',
+      padding: '28px',
+      border: `1px solid ${palette.border}`,
+      boxShadow: '0 2px 12px rgba(15, 23, 42, 0.05)',
     },
     features: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-      gap: '30px',
-      padding: '80px 40px',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+      gap: '20px',
+      padding: '72px 24px',
       maxWidth: '1200px',
       margin: '0 auto',
-      backgroundColor: '#0a0e1a',
+      background: palette.surface,
+      borderTop: `1px solid ${palette.border}`,
+      boxSizing: 'border-box',
     },
     featureCard: {
-      backgroundColor: 'rgba(22, 27, 34, 0.6)',
-      backdropFilter: 'blur(10px)',
-      padding: '30px',
-      borderRadius: '20px',
-      border: '1px solid rgba(59, 130, 246, 0.1)',
-      transition: 'all 0.3s ease',
+      background: palette.bg,
+      border: `1px solid ${palette.border}`,
+      borderRadius: '16px',
+      padding: '32px',
       cursor: 'pointer',
+      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
     },
     featureIcon: {
-      fontSize: '48px',
-      marginBottom: '20px',
+      fontSize: '36px',
+      marginBottom: '14px',
     },
     featureTitle: {
-      fontSize: '24px',
-      fontWeight: '700',
-      marginBottom: '10px',
-      color: '#e8eaf0',
+      color: palette.text,
+      fontSize: '18px',
+      fontWeight: 700,
+      margin: '0 0 8px',
     },
     featureDesc: {
+      color: palette.muted,
       fontSize: '14px',
-      color: '#9ca3af',
-      lineHeight: '1.6',
-    },
-    resultContainer: {
-      marginTop: '30px',
-      textAlign: 'left',
-      backgroundColor: 'rgba(22, 27, 34, 0.9)',
-      backdropFilter: 'blur(10px)',
-      padding: '25px',
-      borderRadius: '16px',
-      border: '1px solid rgba(59, 130, 246, 0.2)',
-      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-      position: 'relative',
-      zIndex: 1,
-      width: '100%',
-      maxWidth: '600px',
-    },
-    resultTitle: {
-      fontSize: '24px',
-      fontWeight: '700',
-      marginBottom: '15px',
-      color: '#3b82f6',
-    },
-    resultItem: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      padding: '10px 0',
-      borderBottom: '1px solid rgba(59, 130, 246, 0.1)',
-    },
-    resultLabel: {
-      color: '#9ca3af',
-      fontSize: '14px',
-    },
-    resultValue: {
-      color: '#e8eaf0',
-      fontSize: '14px',
-      fontWeight: '600',
-    },
-    error: {
-      color: '#ef4444',
-      backgroundColor: 'rgba(239, 68, 68, 0.1)',
-      padding: '12px 20px',
-      borderRadius: '12px',
-      border: '1px solid rgba(239, 68, 68, 0.2)',
-      position: 'relative',
-      zIndex: 1,
-    },
-    imageGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-      gap: '15px',
-      marginTop: '20px',
-      width: '100%',
-    },
-    imageCard: {
-      borderRadius: '8px',
-      overflow: 'hidden',
-      height: '200px',
-      backgroundColor: 'rgba(22, 27, 34, 0.6)',
-    },
-    imageElement: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover',
-      display: 'block',
-    },
-    loadingText: {
-      color: '#9ca3af',
-      fontSize: '14px',
-      marginTop: '15px',
+      lineHeight: 1.6,
+      margin: 0,
     },
     ctaSection: {
       textAlign: 'center',
-      padding: '80px 20px',
-      backgroundColor: 'rgba(22, 27, 34, 0.4)',
+      padding: '72px 24px',
+      background: `linear-gradient(135deg, ${palette.accent} 0%, #0369a1 100%)`,
     },
     ctaTitle: {
-      fontSize: '36px',
-      fontWeight: '700',
-      marginBottom: '20px',
-      color: '#e8eaf0',
+      color: '#ffffff',
+      fontSize: 'clamp(28px, 5vw, 40px)',
+      fontWeight: 900,
+      margin: '0 0 24px',
     },
     ctaButton: {
-      backgroundColor: '#3b82f6',
-      color: '#ffffff',
+      background: '#ffffff',
+      color: palette.accent,
+      borderRadius: '999px',
+      fontWeight: 800,
       border: 'none',
       padding: '14px 32px',
-      borderRadius: '12px',
+      fontSize: '16px',
       cursor: 'pointer',
-      fontSize: '18px',
-      fontWeight: '600',
-      transition: 'all 0.3s ease',
-      boxShadow: '0 4px 20px rgba(59, 130, 246, 0.5)',
-      marginTop: '20px',
+      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
+    },
+    errorBox: {
+      color: '#b91c1c',
+      background: '#fef2f2',
+      border: `1px solid #fecaca`,
+      padding: '14px 18px',
+      borderRadius: '12px',
+      marginBottom: '20px',
+    },
+    loadingText: {
+      color: palette.muted,
+      fontSize: '15px',
     },
   };
 
-  return (
-    <div>
-      {/* Hero Section */}
-      <div style={styles.hero}>
-        <div style={styles.animatedBg}></div>
-        <h1 style={styles.title}>Explore The World</h1>
-        <p style={styles.subtitle}>
-          Discover countries, check weather conditions, and find amazing hotels for your next adventure
-        </p>
+  const daily = weatherData?.daily;
+  const current = weatherData?.current_weather;
+  const forecastDays =
+    daily?.time?.map((t, i) => ({
+      time: t,
+      max: daily.temperature_2m_max?.[i],
+      min: daily.temperature_2m_min?.[i],
+      code: daily.weathercode?.[i],
+      rain: daily.precipitation_sum?.[i],
+    })) ?? [];
 
-        <div style={styles.searchContainer}>
-          {/* Country Search */}
-          <div style={styles.searchBox}>
-            <input
-              style={styles.input}
-              type="text"
-              placeholder="🌍 Search for a country..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-            />
-            <button 
-              style={styles.primaryBtn} 
-              onClick={handleSearch}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.6)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.4)';
-              }}
-            >
-              Search
-            </button>
-          </div>
-
-          {/* Weather Search */}
-          <div style={styles.searchBox}>
-            <input
-              style={styles.input}
-              type="text"
-              placeholder="🌤️ Check weather in any city..."
-              value={query2}
-              onChange={(e) => setQuery2(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch2()}
-            />
-            <button 
-              style={styles.primaryBtn} 
-              onClick={handleSearch2}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.6)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 15px rgba(59, 130, 246, 0.4)';
-              }}
-            >
-              Check Weather
-            </button>
-          </div>
-
-          {error && <div style={styles.error}>⚠️ {error}</div>}
-
-          {/* Country Result */}
-          {country && (
-            <div style={styles.resultContainer}>
-              <h3 style={styles.resultTitle}>
-                {country.name.common} {country.flag}
-              </h3>
-              <div style={styles.resultItem}>
-                <span style={styles.resultLabel}>Capital</span>
-                <span style={styles.resultValue}>{country.capital?.[0]}</span>
-              </div>
-              <div style={styles.resultItem}>
-                <span style={styles.resultLabel}>Region</span>
-                <span style={styles.resultValue}>{country.region}</span>
-              </div>
-              <div style={styles.resultItem}>
-                <span style={styles.resultLabel}>Population</span>
-                <span style={styles.resultValue}>{country.population.toLocaleString()}</span>
-              </div>
-              <div style={{ ...styles.resultItem, borderBottom: 'none' }}>
-                <span style={styles.resultLabel}>Continent</span>
-                <span style={styles.resultValue}>{country.continents?.[0]}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Weather Result */}
-          {meteo && (
-            <div style={styles.resultContainer}>
-              <h3 style={styles.resultTitle}>🌤️ Weather Forecast</h3>
-              <div style={styles.resultItem}>
-                <span style={styles.resultLabel}>Time</span>
-                <span style={styles.resultValue}>{new Date(meteo.current_weather.time).toLocaleString()}</span>
-              </div>
-              <div style={styles.resultItem}>
-                <span style={styles.resultLabel}>Temperature</span>
-                <span style={styles.resultValue}>{meteo.current_weather.temperature}°C</span>
-              </div>
-              <div style={styles.resultItem}>
-                <span style={styles.resultLabel}>Wind Speed</span>
-                <span style={styles.resultValue}>{meteo.current_weather.windspeed} km/h</span>
-              </div>
-              <div style={{ ...styles.resultItem, borderBottom: 'none' }}>
-                <span style={styles.resultLabel}>Wind Direction</span>
-                <span style={styles.resultValue}>{meteo.current_weather.winddirection}°</span>
-              </div>
-            </div>
-          )}
-          {loading && <p>Loading description...</p>}
-
-{description && (
-    <div style={styles.resultContainer}>
-        <h3 style={styles.resultTitle}>📖 About</h3>
-        {/* Wikipedia extracts can be very long — limit to first 300 chars */}
-        <p style={{ color: '#9ca3af', lineHeight: '1.8' }}>
-            {description.slice(0, 300)}...
-        </p>
-    </div>
-)}
-          {/* Images Result */}
-          {imagesLoading && imageQuery && (
-            <div style={styles.loadingText}>Loading images...</div>
-          )}
-
-          {imagesError && imageQuery && (
-            <div style={styles.error}>⚠️ {imagesError}</div>
-          )}
-
-          {images && images.length > 0 && (
-            <div style={styles.imageGrid}>
-              {images.map((img) => (
-                <div key={img.id} style={styles.imageCard}>
-                  <img
-                    src={img.urls.small}
-                    alt={img.alt_description}
-                    style={styles.imageElement}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+  const renderSearchBar = () => (
+    <div style={styles.searchOuter}>
+      <div style={searchBarStyle}>
+        <input
+          style={searchInputStyle}
+          type="text"
+          placeholder="Search for a city or country..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+        />
+        <button type="button" style={searchBtnStyle} onClick={handleSearch}>
+          Search
+        </button>
       </div>
+    </div>
+  );
 
-      {/* Features Section */}
+  return (
+    <div style={styles.page}>
+      {!hasSearched && (
+        <div style={styles.hero}>
+          <h1 style={styles.heroTitle}>Explore The World</h1>
+          <p style={styles.heroSubtitle}>
+            Discover countries, check weather conditions, and find amazing hotels for your next
+            adventure
+          </p>
+          {renderSearchBar()}
+        </div>
+      )}
+
+      {hasSearched && (
+        <div style={styles.stickySearchWrap}>
+          <div style={styles.stickyInner}>{renderSearchBar()}</div>
+        </div>
+      )}
+
+      {hasSearched && (
+        <div style={styles.resultsWrap}>
+          <div style={styles.resultsInner}>
+            {error && <div style={styles.errorBox}>⚠️ {error}</div>}
+
+            {imagesLoading && imageQuery && (
+              <p style={styles.loadingText}>Loading images...</p>
+            )}
+            {imagesError && imageQuery && <div style={styles.errorBox}>⚠️ {imagesError}</div>}
+
+            {galleryImages.length > 0 && (
+              <div>
+                <img
+                  src={
+                    galleryImages[currentImageIndex]?.urls?.regular ||
+                    galleryImages[currentImageIndex]?.urls?.small
+                  }
+                  alt={galleryImages[currentImageIndex]?.alt_description || 'Travel'}
+                  style={styles.galleryImg}
+                />
+                <div style={styles.galleryNav}>
+                  <button type="button" style={styles.pillNavBtn} onClick={handlePrevImage}>
+                    ← Previous
+                  </button>
+                  <span style={styles.imageCounter}>
+                    {galleryImages.length > 0
+                      ? `${currentImageIndex + 1} / ${galleryImages.length}`
+                      : ''}
+                  </span>
+                  <button type="button" style={styles.pillNavBtn} onClick={handleNextImage}>
+                    Next →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {loading && (
+              <p style={{ ...styles.loadingText, marginTop: '24px' }}>Loading description...</p>
+            )}
+            {description && (
+              <>
+                <h2 style={styles.sectionTitleBar}>About {imageQuery}</h2>
+                <div style={styles.descCard}>
+                  <p style={styles.descText}>{description.split('. ').slice(0, 3).join('. ')}</p>
+                </div>
+              </>
+            )}
+
+            {(current || forecastDays.length > 0) && (
+              <>
+                <h2 style={styles.sectionTitleBar}>Forecast</h2>
+                {current && (
+                  <div style={styles.currentWeatherCard}>
+                    <p style={styles.bigTemp}>
+                      {current.temperature != null ? `${Math.round(current.temperature)}°` : '—'}
+                    </p>
+                    <p style={{ color: palette.muted, margin: '14px 0 0', fontSize: '15px' }}>
+                      Wind {current.windspeed != null ? `${current.windspeed} km/h` : '—'}
+                      {current.winddirection != null ? ` · ${current.winddirection}°` : ''}
+                    </p>
+                  </div>
+                )}
+                {forecastDays.length > 0 && (
+                  <>
+                    <p
+                      style={{
+                        fontSize: '13px',
+                        fontWeight: 600,
+                        color: palette.muted,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.06em',
+                        margin: '20px 0 12px',
+                      }}
+                    >
+                      7-day outlook
+                    </p>
+                    <div style={styles.forecastRow}>
+                      {forecastDays.map((day, idx) => (
+                        <div key={`${day.time}-${idx}`} style={styles.forecastCard}>
+                          <div style={{ color: palette.muted, fontSize: '12px', fontWeight: 600 }}>
+                            {new Date(day.time).toLocaleDateString(undefined, { weekday: 'short' })}
+                          </div>
+                          <div style={{ fontSize: '26px', margin: '8px 0' }}>
+                            {getWeatherIcon(day.code ?? 0)}
+                          </div>
+                          <div style={{ color: palette.text, fontWeight: 700, fontSize: '17px' }}>
+                            {day.max != null ? `${Math.round(day.max)}°` : '—'}
+                          </div>
+                          <div style={{ color: palette.muted, fontSize: '13px', marginTop: '2px' }}>
+                            {day.min != null ? `${Math.round(day.min)}°` : '—'}
+                          </div>
+                          <div style={{ color: palette.rain, fontSize: '11px', marginTop: '6px' }}>
+                            {day.rain != null && day.rain > 0 ? `${day.rain} mm` : '0 mm'}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
       <div style={styles.features}>
-        <div 
+        <div
           style={styles.featureCard}
           onClick={() => navigate('/hotels')}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-10px)';
-            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-            e.currentTarget.style.boxShadow = '0 12px 40px rgba(59, 130, 246, 0.3)';
+            e.currentTarget.style.borderColor = palette.accent;
+            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.1)';
+            e.currentTarget.style.borderColor = palette.border;
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
           <div style={styles.featureIcon}>🏨</div>
           <h3 style={styles.featureTitle}>Find Hotels</h3>
-          <p style={styles.featureDesc}>Discover amazing hotels in any city with our interactive map</p>
+          <p style={styles.featureDesc}>
+            Discover amazing hotels in any city with our interactive map
+          </p>
         </div>
 
-        <div 
+        <div
           style={styles.featureCard}
           onClick={() => navigate('/explore')}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-10px)';
-            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-            e.currentTarget.style.boxShadow = '0 12px 40px rgba(59, 130, 246, 0.3)';
+            e.currentTarget.style.borderColor = palette.accent;
+            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.1)';
+            e.currentTarget.style.borderColor = palette.border;
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
@@ -460,16 +525,14 @@ const HomePage = () => {
           <p style={styles.featureDesc}>Explore tourist attractions and plan your perfect trip</p>
         </div>
 
-        <div 
+        <div
           style={styles.featureCard}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-10px)';
-            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.4)';
-            e.currentTarget.style.boxShadow = '0 12px 40px rgba(59, 130, 246, 0.3)';
+            e.currentTarget.style.borderColor = palette.accent;
+            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
           }}
           onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.1)';
+            e.currentTarget.style.borderColor = palette.border;
             e.currentTarget.style.boxShadow = 'none';
           }}
         >
@@ -477,26 +540,28 @@ const HomePage = () => {
           <h3 style={styles.featureTitle}>Weather Info</h3>
           <p style={styles.featureDesc}>Get real-time weather data for any destination</p>
         </div>
-      </div>
 
-      {/* CTA Section */}
-      <div style={styles.ctaSection}>
-        <h2 style={styles.ctaTitle}>Ready to Start Your Journey?</h2>
-        <p style={{ color: '#9ca3af', fontSize: '18px', marginBottom: '30px' }}>
-          Join thousands of travelers who trust Guide Touristique
-        </p>
-        <button 
-          style={styles.ctaButton}
-          onClick={() => navigate('/register')}
+        <div
+          style={styles.featureCard}
+          onClick={() => navigate('/restaurants')}
           onMouseEnter={(e) => {
-            e.target.style.transform = 'translateY(-3px)';
-            e.target.style.boxShadow = '0 8px 30px rgba(59, 130, 246, 0.7)';
+            e.currentTarget.style.borderColor = palette.accent;
+            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
           }}
           onMouseLeave={(e) => {
-            e.target.style.transform = 'translateY(0)';
-            e.target.style.boxShadow = '0 4px 20px rgba(59, 130, 246, 0.5)';
+            e.currentTarget.style.borderColor = palette.border;
+            e.currentTarget.style.boxShadow = 'none';
           }}
         >
+          <div style={styles.featureIcon}>🍽️</div>
+          <h3 style={styles.featureTitle}>Find Restaurants</h3>
+          <p style={styles.featureDesc}>Search dining options by city for your next meal</p>
+        </div>
+      </div>
+
+      <div style={styles.ctaSection}>
+        <h2 style={styles.ctaTitle}>Ready to Start Your Journey?</h2>
+        <button type="button" style={styles.ctaButton} onClick={() => navigate('/register')}>
           Get Started Free →
         </button>
       </div>

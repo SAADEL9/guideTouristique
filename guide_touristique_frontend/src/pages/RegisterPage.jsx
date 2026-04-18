@@ -88,10 +88,19 @@ const RegisterPage = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#f0f2f5",
+        backgroundColor: "#f8fafc",
+        padding: 2,
       }}
     >
-      <Card sx={{ width: 400, borderRadius: 3, boxShadow: 5 }}>
+      <Card
+        sx={{
+          width: "100%",
+          maxWidth: 400,
+          borderRadius: 3,
+          boxShadow: "0 4px 24px rgba(15, 23, 42, 0.08)",
+          border: "1px solid #e2e8f0",
+        }}
+      >
         <CardContent sx={{ p: 4 }}>
           <Box sx={{ textAlign: "center", mb: 3 }}>
             <PersonAdd sx={{ fontSize: 48, color: "primary.main" }} />
@@ -168,7 +177,7 @@ const RegisterPage = () => {
             </Button>
             <Typography variant="body2" textAlign="center">
               Already have an account?{" "}
-              <Link to="/login" style={{ color: "#1976d2", fontWeight: "bold" }}>
+              <Link to="/login" style={{ color: "#0284c7", fontWeight: "bold" }}>
                 Sign In
               </Link>
             </Typography>

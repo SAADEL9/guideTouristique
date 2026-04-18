@@ -110,29 +110,32 @@ const HotelDetailPage = () => {
     );
 };
 
+const accent = '#0284c7';
+const border = '#e2e8f0';
+
 const styles = {
-    container: { backgroundColor: '#0a0e1a', minHeight: '100vh', color: '#fff' },
-    heroImg: { width: '100%', height: '400px', objectFit: 'cover' },
-    content: { maxWidth: '900px', margin: '0 auto', padding: '40px 20px' },
-    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' },
-    name: { fontSize: '32px', fontWeight: '800', color: '#e8eaf0' },
+    container: { backgroundColor: '#f8fafc', minHeight: '100vh', color: '#0f172a' },
+    heroImg: { width: '100%', height: '400px', objectFit: 'cover', borderBottom: `1px solid ${border}` },
+    content: { maxWidth: '900px', margin: '0 auto', padding: '36px 20px 48px' },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px', flexWrap: 'wrap', gap: '12px' },
+    name: { fontSize: 'clamp(24px, 4vw, 32px)', fontWeight: '800', color: '#0f172a' },
     stars: { fontSize: '20px' },
-    address: { color: '#9ca3af', marginBottom: '20px' },
-    reviewBox: { display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#161b22', padding: '16px', borderRadius: '12px', marginBottom: '30px' },
-    score: { fontSize: '40px', fontWeight: '800', color: '#3b82f6' },
-    reviewText: { color: '#9ca3af', fontSize: '16px' },
-    section: { marginBottom: '40px' },
-    sectionTitle: { fontSize: '22px', fontWeight: '700', marginBottom: '16px', color: '#3b82f6', borderBottom: '1px solid #1e2a3a', paddingBottom: '8px' },
-    desc: { color: '#9ca3af', lineHeight: '1.8', fontSize: '15px' },
+    address: { color: '#64748b', marginBottom: '20px' },
+    reviewBox: { display: 'flex', alignItems: 'center', gap: '10px', backgroundColor: '#ffffff', padding: '18px', borderRadius: '14px', marginBottom: '30px', border: `1px solid ${border}`, boxShadow: '0 2px 12px rgba(15,23,42,0.06)' },
+    score: { fontSize: '40px', fontWeight: '800', color: accent },
+    reviewText: { color: '#64748b', fontSize: '16px' },
+    section: { marginBottom: '36px' },
+    sectionTitle: { fontSize: '20px', fontWeight: '700', marginBottom: '14px', color: accent, borderBottom: `1px solid ${border}`, paddingBottom: '8px' },
+    desc: { color: '#475569', lineHeight: '1.8', fontSize: '15px' },
     amenitiesGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '10px' },
-    amenity: { backgroundColor: '#161b22', padding: '8px 14px', borderRadius: '8px', fontSize: '14px', color: '#e8eaf0' },
-    contact: { color: '#9ca3af', marginBottom: '8px' },
-    link: { color: '#3b82f6' },
+    amenity: { backgroundColor: '#ffffff', padding: '10px 14px', borderRadius: '10px', fontSize: '14px', color: '#0f172a', border: `1px solid ${border}` },
+    contact: { color: '#475569', marginBottom: '8px' },
+    link: { color: accent, fontWeight: 600 },
     gallery: { display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '10px' },
-    galleryImg: { width: '100%', height: '120px', objectFit: 'cover', borderRadius: '8px' },
-    mapWrapper: { height: '350px', borderRadius: '12px', overflow: 'hidden' },
-    msg: { textAlign: 'center', color: '#9ca3af', padding: '40px' },
-    error: { textAlign: 'center', color: '#ef4444', padding: '40px' },
+    galleryImg: { width: '100%', height: '120px', objectFit: 'cover', borderRadius: '10px', border: `1px solid ${border}` },
+    mapWrapper: { height: '350px', borderRadius: '14px', overflow: 'hidden', border: `1px solid ${border}`, boxShadow: '0 4px 24px rgba(15,23,42,0.08)' },
+    msg: { textAlign: 'center', color: '#64748b', padding: '40px' },
+    error: { textAlign: 'center', color: '#dc2626', padding: '40px', fontWeight: 600 },
 };
 
 export default HotelDetailPage;

@@ -1,36 +1,39 @@
 import React from 'react';
 
 const Footer = () => {
+  const accent = '#0284c7';
+  const border = '#e2e8f0';
+
   const styles = {
     footer: {
-      backgroundColor: '#0d1424',
-      borderTop: '1px solid #1e2a3a',
-      padding: '60px 80px',
-      color: '#e8eaf0',
+      backgroundColor: '#ffffff',
+      borderTop: `1px solid ${border}`,
+      padding: '56px 24px 32px',
+      color: '#0f172a',
       marginTop: 'auto',
     },
     container: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '40px',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+      gap: '36px',
       maxWidth: '1200px',
       margin: '0 auto',
     },
     column: {
       display: 'flex',
       flexDirection: 'column',
-      gap: '15px',
+      gap: '12px',
     },
     title: {
-      fontSize: '18px',
-      fontWeight: 'bold',
-      color: '#3b82f6',
-      marginBottom: '10px',
+      fontSize: '16px',
+      fontWeight: 700,
+      color: accent,
+      marginBottom: '4px',
     },
     text: {
-      color: '#6b7a99',
+      color: '#64748b',
       fontSize: '14px',
-      lineHeight: '1.6',
+      lineHeight: 1.65,
     },
     memberList: {
       listStyle: 'none',
@@ -42,12 +45,12 @@ const Footer = () => {
     },
     copyright: {
       textAlign: 'center',
-      marginTop: '60px',
-      paddingTop: '20px',
-      borderTop: '1px solid #1e2a3a',
-      color: '#6b7a99',
+      marginTop: '48px',
+      paddingTop: '24px',
+      borderTop: `1px solid ${border}`,
+      color: '#94a3b8',
       fontSize: '12px',
-    }
+    },
   };
 
   return (
@@ -56,18 +59,19 @@ const Footer = () => {
         <div style={styles.column}>
           <div style={styles.title}>HiddenSpots</div>
           <p style={styles.text}>
-            Discover the most beautiful and secret locations shared by our community of travelers and explorers.
+            Discover the most beautiful and secret locations shared by our community of travelers
+            and explorers.
           </p>
         </div>
-        
+
         <div style={styles.column}>
           <div style={styles.title}>Team Members</div>
           <ul style={styles.memberList}>
-            <li style={{color: '#e8eaf0'}}>Mohamed Moughamir</li>
-            <li style={{color: '#e8eaf0'}}>Adam Boussid</li>
-            <li style={{color: '#e8eaf0'}}>Saad Elmahi</li>
-            <li style={{color: '#e8eaf0'}}>Soukaina Gourram</li>
-            <li style={{color: '#e8eaf0'}}>Doha Elgarouaz</li>
+            <li style={{ color: '#334155', fontSize: '14px' }}>Mohamed Moughamir</li>
+            <li style={{ color: '#334155', fontSize: '14px' }}>Adam Boussid</li>
+            <li style={{ color: '#334155', fontSize: '14px' }}>Saad Elmahi</li>
+            <li style={{ color: '#334155', fontSize: '14px' }}>Soukaina Gourram</li>
+            <li style={{ color: '#334155', fontSize: '14px' }}>Doha Elgarouaz</li>
           </ul>
         </div>
 
@@ -77,10 +81,8 @@ const Footer = () => {
           <div style={styles.text}>Built with React & Passion</div>
         </div>
       </div>
-      
-      <div style={styles.copyright}>
-        © 2025 HiddenSpots. All rights reserved.
-      </div>
+
+      <div style={styles.copyright}>© 2026 HiddenSpots. All rights reserved.</div>
     </footer>
   );
 };
