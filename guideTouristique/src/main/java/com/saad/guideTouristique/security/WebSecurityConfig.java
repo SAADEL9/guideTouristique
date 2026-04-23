@@ -18,6 +18,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.http.HttpMethod;
 
 import com.saad.guideTouristique.security.jwt.AuthEntryPointJwt;
 import com.saad.guideTouristique.security.jwt.AuthTokenFilter;
@@ -56,7 +57,7 @@ public class WebSecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ✅ CORS configuration bean
+    
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -83,6 +84,8 @@ public class WebSecurityConfig {
                         .requestMatchers("/api/test/**").permitAll()
                         .requestMatchers("/api/places/**").permitAll()
                         .requestMatchers("/api/hotels/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/tours").permitAll()
+                        .requestMatchers("/api/webhook/**").permitAll()   
                         .anyRequest().authenticated()
                 );
 

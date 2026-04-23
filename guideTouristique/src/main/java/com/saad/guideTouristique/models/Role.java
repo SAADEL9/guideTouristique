@@ -12,4 +12,9 @@ public class Role {
     private String id;
 
     private ERole name;
+
+    // Manual getter
+    public ERole getName() {
+        return name;
+    }
 }
