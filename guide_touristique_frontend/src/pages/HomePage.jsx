@@ -491,6 +491,23 @@ const HomePage = () => {
       <div style={styles.features}>
         <div
           style={styles.featureCard}
+          onClick={() => navigate('/tours')}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.borderColor = palette.accent;
+            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.borderColor = palette.border;
+            e.currentTarget.style.boxShadow = 'none';
+          }}
+        >
+          <div style={styles.featureIcon}>🎯</div>
+          <h3 style={styles.featureTitle}>Guided Tours</h3>
+          <p style={styles.featureDesc}>Book amazing guided tours and experiences in your destination</p>
+        </div>
+
+        <div
+          style={styles.featureCard}
           onClick={() => navigate('/hotels')}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = palette.accent;
@@ -510,7 +527,7 @@ const HomePage = () => {
 
         <div
           style={styles.featureCard}
-          onClick={() => navigate('/explore')}
+          onClick={() => navigate('/restaurants')}
           onMouseEnter={(e) => {
             e.currentTarget.style.borderColor = palette.accent;
             e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';

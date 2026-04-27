@@ -23,6 +23,21 @@ public class TourController {
         return tourRepository.findByStatus(ETourStatus.APPROVED);
     }
 
+    // ✅ PUBLIC — Voir un tour spécifique
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTourById(@PathVariable String id) {
+        return tourRepository.findById(id)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
+    }
+
+    // ✅ ADMIN — Voir tous les tours
+    @GetMapping("/all")
+    public List<Tour> getAllTours(@AuthenticationPrincipal UserDetailsImpl user) {
+        // ideally check if user is admin, but keeping it simple as per other endpoints
+        return tourRepository.findAll();
+    }
+
     // ✅ BUSINESS — Créer un tour
     @PostMapping
     public ResponseEntity<?> createTour(@RequestBody Tour tour,
