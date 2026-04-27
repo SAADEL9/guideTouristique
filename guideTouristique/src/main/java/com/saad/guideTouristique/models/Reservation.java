@@ -11,6 +11,7 @@ public class Reservation {
     private String id;
 
     private String tourId;
+    private String businessId;
     private String userId;
     private String date;
     private int numberOfPeople;
@@ -34,6 +35,14 @@ public class Reservation {
 
     public void setTourId(String tourId) {
         this.tourId = tourId;
+    }
+
+    public String getBusinessId() {
+        return businessId;
+    }
+
+    public void setBusinessId(String businessId) {
+        this.businessId = businessId;
     }
 
     public String getUserId() {

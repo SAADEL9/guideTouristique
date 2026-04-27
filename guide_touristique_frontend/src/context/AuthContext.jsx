@@ -8,28 +8,42 @@ export const AuthProvider = ({ children }) => {
 
   const isAuthenticated = !!user;
 
-  const login = async (username, password) => {
-    const response = await authService.login(username, password);
-    const data = response.data;
+const hasRole = (role) => {
+  if (!user?.roles) return false;
+  return user.roles.includes(role) || 
+         user.roles.includes(`ROLE_${role.toUpperCase()}`);
+};
 
-    authService.saveToken(data.token);
-    authService.saveUser({
-      id: data.id,
-      username: data.username,
-      email: data.email,
-      roles: data.roles,
-    });
+const isBusiness = () => hasRole('BUSINESS');
+const isAdmin = () => hasRole('ADMIN');
 
-    setUser({
-      id: data.id,
-      username: data.username,
-      email: data.email,
-      roles: data.roles,
-    });
+ const login = async (username, password) => {
+  const response = await authService.login(username, password);
+  const data = response.data;
 
-    return data;
+  console.log("Login response:", data);
+
+  const token = data.token || data.accessToken;
+
+  if (!token) {
+    console.error("❌ Aucun token reçu !");
+    return;
+  }
+
+  authService.saveToken(token);
+
+  const userData = {
+    id: data.id,
+    username: data.username,
+    email: data.email,
+    roles: data.roles,
   };
 
+  authService.saveUser(userData);
+  setUser(userData);
+
+  return data;
+};
   const logout = () => {
     authService.removeToken();
     authService.removeUser();
@@ -37,7 +51,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, logout }}>
+    <AuthContext.Provider value={{ 
+      user, isAuthenticated, login, logout,
+      hasRole, isBusiness, isAdmin   // ← ajouter ces 3
+    }}>
       {children}
     </AuthContext.Provider>
   );

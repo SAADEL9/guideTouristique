@@ -39,6 +39,7 @@ public class ReservationController {
             .orElseThrow(() -> new RuntimeException("Tour not found"));
 
         reservation.setUserId(user.getId());
+        reservation.setBusinessId(tour.getBusinessId());
         reservation.setTotalPrice(tour.getPrice() * reservation.getNumberOfPeople());
         reservation.setStatus(EReservationStatus.PENDING);
 
@@ -69,6 +70,18 @@ public class ReservationController {
         }
 
         List<Reservation> reservations = reservationRepository.findByUserId(user.getId());
+        return ResponseEntity.ok(reservations);
+    }
+
+    @GetMapping("/business")
+    public ResponseEntity<?> getBusinessReservations(
+            @AuthenticationPrincipal UserDetailsImpl user) {
+
+        if (user == null) {
+            return ResponseEntity.status(401).body("Not authenticated");
+        }
+
+        List<Reservation> reservations = reservationRepository.findByBusinessId(user.getId());
         return ResponseEntity.ok(reservations);
     }
 

@@ -10,6 +10,7 @@ const HotelDetailPage = () => {
 
     useEffect(() => {
         getDetails(hotelId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hotelId]);
 
     useEffect(() => {
@@ -75,7 +76,7 @@ const HotelDetailPage = () => {
                     <h2 style={styles.sectionTitle}>Contact</h2>
                     {h.phone && <p style={styles.contact}>📞 {h.phone}</p>}
                     {h.email && <p style={styles.contact}>✉️ {h.email}</p>}
-                    {h.website && <p style={styles.contact}>🌐 <a href={h.website} style={styles.link} target="_blank">{h.website}</a></p>}
+                    {h.website && <p style={styles.contact}>🌐 <a href={h.website} style={styles.link} target="_blank" rel="noreferrer">{h.website}</a></p>}
                 </div>
 
                 {/* Image Gallery */}

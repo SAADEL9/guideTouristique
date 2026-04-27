@@ -1,11 +1,15 @@
 import axiosInstance from "../api/AxiosInstance";
 
-const login = (username, password) => {
+const login = (username, password, accountType = "traveler") => {
   return axiosInstance.post("/auth/signin", { username, password });
 };
 
 const register = (username, email, password) => {
   return axiosInstance.post("/auth/signup", { username, email, password });
+};
+
+const registerBusiness = (data) => {
+  return axiosInstance.post("/auth/signup/business", data);
 };
 
 const saveToken = (token) => localStorage.setItem("token", token);
@@ -22,6 +26,7 @@ const removeUser = () => localStorage.removeItem("user");
 const authService = {
   login,
   register,
+  registerBusiness,
   saveToken,
   getToken,
   removeToken,
