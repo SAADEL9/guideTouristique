@@ -102,6 +102,19 @@ public class WebSecurityConfig {
                         .requestMatchers(HttpMethod.PUT, "/api/tours/**").hasAuthority("ROLE_BUSINESS")
                         .requestMatchers(HttpMethod.DELETE, "/api/tours/**").hasAuthority("ROLE_BUSINESS")
 
+                        // REVIEWS
+                        .requestMatchers(HttpMethod.GET, "/api/reviews", "/api/reviews/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/api/reviews/*/status").hasAuthority("ROLE_ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/reviews/*/owner-reply").hasAuthority("ROLE_BUSINESS")
+                        .requestMatchers(HttpMethod.PUT, "/api/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").authenticated()
+
+                        // QUESTIONS
+                        .requestMatchers(HttpMethod.GET, "/api/questions", "/api/questions/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/questions/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/api/questions/**").authenticated()
+
                         // ALL OTHER REQUESTS
                         .anyRequest().authenticated()
                 );
