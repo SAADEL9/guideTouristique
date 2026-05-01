@@ -32,6 +32,9 @@ import {
 } from "@mui/icons-material";
 
 import BookingDialog from '../components/BookingDialog';
+import ReviewsList from '../components/Reviews/ReviewsList';
+import AddReviewForm from '../components/Reviews/AddReviewForm';
+import QASection from '../components/QA/QASection';
 import axiosInstance from '../api/AxiosInstance';
 
 const TourDetail = () => {
@@ -272,6 +275,30 @@ const TourDetail = () => {
             </Box>
           </Grid>
         </Grid>
+      </Container>
+
+      {/* Reviews & Q&A */}
+      <Container maxWidth="lg" sx={{ mt: 4 }}>
+        <Paper elevation={0} sx={{ p: 4, borderRadius: 4, boxShadow: '0 10px 40px rgba(0,0,0,0.08)', mb: 4 }}>
+          <AddReviewForm
+            establishmentId={String(tour.id)}
+            establishmentType="TOUR"
+          />
+        </Paper>
+
+        <Paper elevation={0} sx={{ p: 4, borderRadius: 4, boxShadow: '0 10px 40px rgba(0,0,0,0.08)', mb: 4 }}>
+          <ReviewsList
+            establishmentId={String(tour.id)}
+            establishmentType="TOUR"
+          />
+        </Paper>
+
+        <Paper elevation={0} sx={{ p: 4, borderRadius: 4, boxShadow: '0 10px 40px rgba(0,0,0,0.08)', mb: 4 }}>
+          <QASection
+            establishmentId={String(tour.id)}
+            establishmentType="TOUR"
+          />
+        </Paper>
       </Container>
 
       {/* Booking Modal */}
