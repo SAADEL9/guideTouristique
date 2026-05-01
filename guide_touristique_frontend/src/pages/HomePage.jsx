@@ -5,6 +5,15 @@ import useWikipedia from '../hooks/useWikipedia';
 import { searchLocation } from '../api/locationService';
 import { weatherClient } from '../api/externalClients';
 
+const CORAL = '#FF6B35';
+const BG = '#FAFAFA';
+const HERO_BG = '#FFF8F5';
+const ACCENT_LIGHT = '#FFE8DF';
+const TEXT = '#1A1A1A';
+const MUTED = '#888888';
+const BORDER = '#EEEEEE';
+const WHITE = '#FFFFFF';
+
 const getWeatherIcon = (code) => {
   if (code === 0) return '☀️';
   if (code <= 2) return '⛅';
@@ -17,7 +26,15 @@ const getWeatherIcon = (code) => {
   return '🌡️';
 };
 
-const NAV_OFFSET = 70;
+const NAV_OFFSET = 64;
+
+const features = [
+  { icon: '🎯', title: 'Guided Tours', desc: 'Book curated experiences and guided tours at top destinations', route: '/tours' },
+  { icon: '🏨', title: 'Find Hotels', desc: 'Discover hotels in any city, filtered by your preferences', route: '/hotels' },
+  { icon: '🍽️', title: 'Restaurants', desc: 'Search dining options for any city around the world', route: '/restaurants' },
+  { icon: '🌤️', title: 'Live Weather', desc: 'Real-time forecasts for any destination on earth', route: null },
+  { icon: '🗺️', title: 'Explore Places', desc: 'Find tourist spots and plan your perfect itinerary', route: '/restaurants' },
+];
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -34,24 +51,20 @@ const HomePage = () => {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-
     setImageQuery(query.trim());
     setCurrentImageIndex(0);
-
     try {
       const location = await searchLocation(query.trim());
       const weatherRes = await weatherClient.get('/forecast', {
         params: {
           latitude: location.lat,
           longitude: location.lon,
-          daily:
-            'temperature_2m_max,temperature_2m_min,weathercode,precipitation_sum,windspeed_10m_max',
+          daily: 'temperature_2m_max,temperature_2m_min,weathercode,precipitation_sum,windspeed_10m_max',
           current_weather: true,
           timezone: 'auto',
           forecast_days: 7,
         },
       });
-
       getDescription(query.trim());
       setWeatherData(weatherRes.data);
       setError(null);
@@ -62,384 +75,124 @@ const HomePage = () => {
   };
 
   const galleryImages = images ? images.slice(0, 5) : [];
-
-  const handlePrevImage = () => {
-    if (galleryImages.length === 0) return;
-    setCurrentImageIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length);
-  };
-
-  const handleNextImage = () => {
-    if (galleryImages.length === 0) return;
-    setCurrentImageIndex((prev) => (prev + 1) % galleryImages.length);
-  };
-
-  const palette = {
-    bg: '#f8fafc',
-    surface: '#ffffff',
-    accent: '#0284c7',
-    text: '#0f172a',
-    muted: '#64748b',
-    border: '#e2e8f0',
-    rain: '#0369a1',
-  };
-
-  const searchBarStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    height: '56px',
-    background: palette.surface,
-    border: `1px solid ${palette.border}`,
-    borderRadius: '999px',
-    paddingLeft: '22px',
-    paddingRight: '6px',
-    boxSizing: 'border-box',
-    boxShadow: '0 1px 2px rgba(15, 23, 42, 0.04)',
-  };
-
-  const searchInputStyle = {
-    flex: 1,
-    minWidth: 0,
-    height: '100%',
-    border: 'none',
-    background: 'transparent',
-    color: palette.text,
-    fontSize: '17px',
-    outline: 'none',
-  };
-
-  const searchBtnStyle = {
-    background: palette.accent,
-    color: '#ffffff',
-    borderRadius: '999px',
-    padding: '11px 28px',
-    border: 'none',
-    fontWeight: 700,
-    fontSize: '15px',
-    cursor: 'pointer',
-    flexShrink: 0,
-  };
-
-  const styles = {
-    page: {
-      background: palette.bg,
-      minHeight: '100vh',
-    },
-    hero: {
-      minHeight: `calc(100vh - ${NAV_OFFSET}px)`,
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      padding: '48px 24px 64px',
-      background: `linear-gradient(180deg, #ffffff 0%, ${palette.bg} 100%)`,
-    },
-    heroTitle: {
-      fontSize: 'clamp(40px, 8vw, 72px)',
-      fontWeight: 900,
-      color: palette.text,
-      letterSpacing: '-2px',
-      margin: '0 0 16px',
-      lineHeight: 1.05,
-    },
-    heroSubtitle: {
-      fontSize: '19px',
-      color: palette.muted,
-      margin: '0 0 36px',
-      maxWidth: '520px',
-      lineHeight: 1.6,
-    },
-    searchOuter: {
-      width: '100%',
-      maxWidth: '700px',
-    },
-    stickySearchWrap: {
-      position: 'sticky',
-      top: NAV_OFFSET,
-      zIndex: 50,
-      background: 'rgba(255, 255, 255, 0.92)',
-      backdropFilter: 'blur(12px)',
-      WebkitBackdropFilter: 'blur(12px)',
-      borderBottom: `1px solid ${palette.border}`,
-      boxShadow: '0 4px 24px rgba(15, 23, 42, 0.06)',
-    },
-    stickyInner: {
-      maxWidth: '900px',
-      margin: '0 auto',
-      padding: '16px 20px',
-    },
-    resultsWrap: {
-      background: palette.bg,
-      color: palette.text,
-    },
-    resultsInner: {
-      maxWidth: '900px',
-      margin: '0 auto',
-      padding: '32px 20px 48px',
-    },
-    galleryImg: {
-      width: '100%',
-      height: '450px',
-      objectFit: 'cover',
-      borderRadius: '16px',
-      display: 'block',
-      border: `1px solid ${palette.border}`,
-      boxShadow: '0 10px 40px rgba(15, 23, 42, 0.08)',
-    },
-    galleryNav: {
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '24px',
-      marginTop: '18px',
-      flexWrap: 'wrap',
-    },
-    pillNavBtn: {
-      background: palette.surface,
-      border: `1px solid ${palette.border}`,
-      color: palette.text,
-      borderRadius: '999px',
-      padding: '10px 26px',
-      cursor: 'pointer',
-      fontSize: '14px',
-      fontWeight: 600,
-    },
-    imageCounter: {
-      color: palette.muted,
-      fontSize: '14px',
-      minWidth: '56px',
-      textAlign: 'center',
-    },
-    sectionTitleBar: {
-      borderLeft: `4px solid ${palette.accent}`,
-      paddingLeft: '12px',
-      fontSize: '20px',
-      fontWeight: 700,
-      color: palette.text,
-      margin: '40px 0 16px',
-    },
-    forecastRow: {
-      display: 'flex',
-      gap: '12px',
-      overflowX: 'auto',
-      paddingBottom: '8px',
-      WebkitOverflowScrolling: 'touch',
-    },
-    forecastCard: {
-      background: palette.surface,
-      borderRadius: '14px',
-      padding: '18px',
-      minWidth: '110px',
-      textAlign: 'center',
-      flexShrink: 0,
-      border: `1px solid ${palette.border}`,
-      boxShadow: '0 1px 3px rgba(15, 23, 42, 0.06)',
-    },
-    currentWeatherCard: {
-      background: palette.surface,
-      borderRadius: '16px',
-      padding: '28px',
-      marginTop: '8px',
-      border: `1px solid ${palette.border}`,
-      boxShadow: '0 4px 24px rgba(15, 23, 42, 0.06)',
-    },
-    bigTemp: {
-      fontSize: '56px',
-      fontWeight: 900,
-      color: palette.text,
-      margin: 0,
-      lineHeight: 1,
-    },
-    descText: {
-      color: palette.muted,
-      fontSize: '16px',
-      lineHeight: 1.85,
-      margin: 0,
-    },
-    descCard: {
-      background: palette.surface,
-      borderRadius: '16px',
-      padding: '28px',
-      border: `1px solid ${palette.border}`,
-      boxShadow: '0 2px 12px rgba(15, 23, 42, 0.05)',
-    },
-    features: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-      gap: '20px',
-      padding: '72px 24px',
-      maxWidth: '1200px',
-      margin: '0 auto',
-      background: palette.surface,
-      borderTop: `1px solid ${palette.border}`,
-      boxSizing: 'border-box',
-    },
-    featureCard: {
-      background: palette.bg,
-      border: `1px solid ${palette.border}`,
-      borderRadius: '16px',
-      padding: '32px',
-      cursor: 'pointer',
-      transition: 'border-color 0.2s ease, box-shadow 0.2s ease',
-    },
-    featureIcon: {
-      fontSize: '36px',
-      marginBottom: '14px',
-    },
-    featureTitle: {
-      color: palette.text,
-      fontSize: '18px',
-      fontWeight: 700,
-      margin: '0 0 8px',
-    },
-    featureDesc: {
-      color: palette.muted,
-      fontSize: '14px',
-      lineHeight: 1.6,
-      margin: 0,
-    },
-    ctaSection: {
-      textAlign: 'center',
-      padding: '72px 24px',
-      background: `linear-gradient(135deg, ${palette.accent} 0%, #0369a1 100%)`,
-    },
-    ctaTitle: {
-      color: '#ffffff',
-      fontSize: 'clamp(28px, 5vw, 40px)',
-      fontWeight: 900,
-      margin: '0 0 24px',
-    },
-    ctaButton: {
-      background: '#ffffff',
-      color: palette.accent,
-      borderRadius: '999px',
-      fontWeight: 800,
-      border: 'none',
-      padding: '14px 32px',
-      fontSize: '16px',
-      cursor: 'pointer',
-      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)',
-    },
-    errorBox: {
-      color: '#b91c1c',
-      background: '#fef2f2',
-      border: `1px solid #fecaca`,
-      padding: '14px 18px',
-      borderRadius: '12px',
-      marginBottom: '20px',
-    },
-    loadingText: {
-      color: palette.muted,
-      fontSize: '15px',
-    },
-  };
+  const handlePrevImage = () => galleryImages.length && setCurrentImageIndex((p) => (p - 1 + galleryImages.length) % galleryImages.length);
+  const handleNextImage = () => galleryImages.length && setCurrentImageIndex((p) => (p + 1) % galleryImages.length);
 
   const daily = weatherData?.daily;
   const current = weatherData?.current_weather;
-  const forecastDays =
-    daily?.time?.map((t, i) => ({
-      time: t,
-      max: daily.temperature_2m_max?.[i],
-      min: daily.temperature_2m_min?.[i],
-      code: daily.weathercode?.[i],
-      rain: daily.precipitation_sum?.[i],
-    })) ?? [];
+  const forecastDays = daily?.time?.map((t, i) => ({
+    time: t, max: daily.temperature_2m_max?.[i], min: daily.temperature_2m_min?.[i],
+    code: daily.weathercode?.[i], rain: daily.precipitation_sum?.[i],
+  })) ?? [];
 
-  const renderSearchBar = () => (
-    <div style={styles.searchOuter}>
-      <div style={searchBarStyle}>
-        <input
-          style={searchInputStyle}
-          type="text"
-          placeholder="Search for a city or country..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-        />
-        <button type="button" style={searchBtnStyle} onClick={handleSearch}>
-          Search
-        </button>
-      </div>
+  const SearchBar = () => (
+    <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: 620, height: 52, background: WHITE, border: `0.5px solid ${BORDER}`, borderRadius: 999, paddingLeft: 20, paddingRight: 6, boxSizing: 'border-box' }}>
+      <input
+        style={{ flex: 1, border: 'none', background: 'transparent', color: TEXT, fontSize: 15, outline: 'none', fontFamily: 'inherit' }}
+        type="text"
+        placeholder="Search for a city or country..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+      />
+      <button
+        type="button"
+        onClick={handleSearch}
+        style={{ background: CORAL, color: WHITE, borderRadius: 999, padding: '10px 24px', border: 'none', fontWeight: 500, fontSize: 14, cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit' }}
+      >
+        Explore
+      </button>
     </div>
   );
 
   return (
-    <div style={styles.page}>
+    <div style={{ background: BG, minHeight: '100vh' }}>
+      {/* Hero */}
       {!hasSearched && (
-        <div style={styles.hero}>
-          <h1 style={styles.heroTitle}>Explore The World</h1>
-          <p style={styles.heroSubtitle}>
-            Discover countries, check weather conditions, and find amazing hotels for your next
-            adventure
+        <div style={{ background: HERO_BG, minHeight: `calc(100vh - ${NAV_OFFSET}px)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '48px 24px 80px' }}>
+          {/* Pill badge */}
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: ACCENT_LIGHT, color: CORAL, borderRadius: 999, padding: '6px 14px', fontSize: 13, fontWeight: 500, marginBottom: 24 }}>
+            <span>🌍</span> Discover the world
+          </div>
+
+          <h1 style={{ fontSize: 'clamp(38px, 7vw, 68px)', fontWeight: 500, color: TEXT, letterSpacing: '-1.5px', margin: '0 0 16px', lineHeight: 1.1, maxWidth: 720 }}>
+            Your next adventure<br />
+            <span style={{ color: CORAL }}>starts here</span>
+          </h1>
+          <p style={{ fontSize: 17, color: MUTED, margin: '0 0 36px', maxWidth: 480, lineHeight: 1.65, fontWeight: 400 }}>
+            Explore destinations, check the weather, and book unforgettable tours — all in one place.
           </p>
-          {renderSearchBar()}
+
+          <SearchBar />
+
+          {/* Stats bar */}
+          <div style={{ display: 'flex', gap: 40, marginTop: 52, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {[['200+', 'Tours Available'], ['50+', 'Cities'], ['1000+', 'Happy Travelers']].map(([num, label]) => (
+              <div key={label} style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: 22, fontWeight: 500, color: TEXT }}>{num}</div>
+                <div style={{ fontSize: 13, color: MUTED, marginTop: 2 }}>{label}</div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
+      {/* Sticky search on scroll */}
       {hasSearched && (
-        <div style={styles.stickySearchWrap}>
-          <div style={styles.stickyInner}>{renderSearchBar()}</div>
+        <div style={{ position: 'sticky', top: NAV_OFFSET, zIndex: 50, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', borderBottom: `0.5px solid ${BORDER}` }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center' }}>
+            <SearchBar />
+          </div>
         </div>
       )}
 
+      {/* Search results */}
       {hasSearched && (
-        <div style={styles.resultsWrap}>
-          <div style={styles.resultsInner}>
-            {error && <div style={styles.errorBox}>⚠️ {error}</div>}
-
-            {imagesLoading && imageQuery && (
-              <p style={styles.loadingText}>Loading images...</p>
+        <div style={{ background: BG }}>
+          <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px 56px' }}>
+            {error && (
+              <div style={{ color: '#b91c1c', background: '#fef2f2', border: '0.5px solid #fecaca', padding: '12px 16px', borderRadius: 12, marginBottom: 20 }}>
+                ⚠️ {error}
+              </div>
             )}
-            {imagesError && imageQuery && <div style={styles.errorBox}>⚠️ {imagesError}</div>}
+
+            {imagesLoading && <p style={{ color: MUTED, fontSize: 14 }}>Loading images...</p>}
+            {imagesError && <div style={{ color: '#b91c1c', background: '#fef2f2', border: '0.5px solid #fecaca', padding: '12px 16px', borderRadius: 12, marginBottom: 20 }}>⚠️ {imagesError}</div>}
 
             {galleryImages.length > 0 && (
               <div>
                 <img
-                  src={
-                    galleryImages[currentImageIndex]?.urls?.regular ||
-                    galleryImages[currentImageIndex]?.urls?.small
-                  }
+                  src={galleryImages[currentImageIndex]?.urls?.regular || galleryImages[currentImageIndex]?.urls?.small}
                   alt={galleryImages[currentImageIndex]?.alt_description || 'Travel'}
-                  style={styles.galleryImg}
+                  style={{ width: '100%', height: 420, objectFit: 'cover', borderRadius: 12, display: 'block', border: `0.5px solid ${BORDER}` }}
                 />
-                <div style={styles.galleryNav}>
-                  <button type="button" style={styles.pillNavBtn} onClick={handlePrevImage}>
-                    ← Previous
-                  </button>
-                  <span style={styles.imageCounter}>
-                    {galleryImages.length > 0
-                      ? `${currentImageIndex + 1} / ${galleryImages.length}`
-                      : ''}
-                  </span>
-                  <button type="button" style={styles.pillNavBtn} onClick={handleNextImage}>
-                    Next →
-                  </button>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 16, marginTop: 14 }}>
+                  <button onClick={handlePrevImage} style={{ background: WHITE, border: `0.5px solid ${BORDER}`, color: TEXT, borderRadius: 999, padding: '8px 20px', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>← Prev</button>
+                  <span style={{ color: MUTED, fontSize: 13 }}>{currentImageIndex + 1} / {galleryImages.length}</span>
+                  <button onClick={handleNextImage} style={{ background: WHITE, border: `0.5px solid ${BORDER}`, color: TEXT, borderRadius: 999, padding: '8px 20px', cursor: 'pointer', fontSize: 13, fontFamily: 'inherit' }}>Next →</button>
                 </div>
               </div>
             )}
 
-            {loading && (
-              <p style={{ ...styles.loadingText, marginTop: '24px' }}>Loading description...</p>
-            )}
+            {loading && <p style={{ color: MUTED, fontSize: 14, marginTop: 24 }}>Loading description...</p>}
             {description && (
               <>
-                <h2 style={styles.sectionTitleBar}>About {imageQuery}</h2>
-                <div style={styles.descCard}>
-                  <p style={styles.descText}>{description.split('. ').slice(0, 3).join('. ')}</p>
+                <div style={{ borderLeft: `3px solid ${CORAL}`, paddingLeft: 12, fontSize: 17, fontWeight: 500, color: TEXT, margin: '36px 0 14px' }}>About {imageQuery}</div>
+                <div style={{ background: WHITE, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 24 }}>
+                  <p style={{ color: MUTED, fontSize: 15, lineHeight: 1.8, margin: 0 }}>{description.split('. ').slice(0, 3).join('. ')}</p>
                 </div>
               </>
             )}
 
             {(current || forecastDays.length > 0) && (
               <>
-                <h2 style={styles.sectionTitleBar}>Forecast</h2>
+                <div style={{ borderLeft: `3px solid ${CORAL}`, paddingLeft: 12, fontSize: 17, fontWeight: 500, color: TEXT, margin: '36px 0 14px' }}>Forecast</div>
                 {current && (
-                  <div style={styles.currentWeatherCard}>
-                    <p style={styles.bigTemp}>
+                  <div style={{ background: WHITE, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: 24, marginBottom: 16 }}>
+                    <p style={{ fontSize: 52, fontWeight: 500, color: TEXT, lineHeight: 1, margin: 0 }}>
                       {current.temperature != null ? `${Math.round(current.temperature)}°` : '—'}
                     </p>
-                    <p style={{ color: palette.muted, margin: '14px 0 0', fontSize: '15px' }}>
+                    <p style={{ color: MUTED, margin: '12px 0 0', fontSize: 14 }}>
                       Wind {current.windspeed != null ? `${current.windspeed} km/h` : '—'}
                       {current.winddirection != null ? ` · ${current.winddirection}°` : ''}
                     </p>
@@ -447,36 +200,17 @@ const HomePage = () => {
                 )}
                 {forecastDays.length > 0 && (
                   <>
-                    <p
-                      style={{
-                        fontSize: '13px',
-                        fontWeight: 600,
-                        color: palette.muted,
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.06em',
-                        margin: '20px 0 12px',
-                      }}
-                    >
-                      7-day outlook
-                    </p>
-                    <div style={styles.forecastRow}>
-                      {forecastDays.map((day, idx) => (
-                        <div key={`${day.time}-${idx}`} style={styles.forecastCard}>
-                          <div style={{ color: palette.muted, fontSize: '12px', fontWeight: 600 }}>
+                    <p style={{ fontSize: 12, fontWeight: 500, color: MUTED, textTransform: 'uppercase', letterSpacing: '0.06em', margin: '16px 0 10px' }}>7-day outlook</p>
+                    <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6 }}>
+                      {forecastDays.map((day, i) => (
+                        <div key={`${day.time}-${i}`} style={{ background: WHITE, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: '16px 14px', minWidth: 100, textAlign: 'center', flexShrink: 0 }}>
+                          <div style={{ color: MUTED, fontSize: 11, fontWeight: 500 }}>
                             {new Date(day.time).toLocaleDateString(undefined, { weekday: 'short' })}
                           </div>
-                          <div style={{ fontSize: '26px', margin: '8px 0' }}>
-                            {getWeatherIcon(day.code ?? 0)}
-                          </div>
-                          <div style={{ color: palette.text, fontWeight: 700, fontSize: '17px' }}>
-                            {day.max != null ? `${Math.round(day.max)}°` : '—'}
-                          </div>
-                          <div style={{ color: palette.muted, fontSize: '13px', marginTop: '2px' }}>
-                            {day.min != null ? `${Math.round(day.min)}°` : '—'}
-                          </div>
-                          <div style={{ color: palette.rain, fontSize: '11px', marginTop: '6px' }}>
-                            {day.rain != null && day.rain > 0 ? `${day.rain} mm` : '0 mm'}
-                          </div>
+                          <div style={{ fontSize: 24, margin: '6px 0' }}>{getWeatherIcon(day.code ?? 0)}</div>
+                          <div style={{ color: TEXT, fontWeight: 500, fontSize: 16 }}>{day.max != null ? `${Math.round(day.max)}°` : '—'}</div>
+                          <div style={{ color: MUTED, fontSize: 12, marginTop: 2 }}>{day.min != null ? `${Math.round(day.min)}°` : '—'}</div>
+                          <div style={{ color: CORAL, fontSize: 11, marginTop: 4 }}>{day.rain != null && day.rain > 0 ? `${day.rain}mm` : '0mm'}</div>
                         </div>
                       ))}
                     </div>
@@ -488,98 +222,48 @@ const HomePage = () => {
         </div>
       )}
 
-      <div style={styles.features}>
-        <div
-          style={styles.featureCard}
-          onClick={() => navigate('/tours')}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = palette.accent;
-            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = palette.border;
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <div style={styles.featureIcon}>🎯</div>
-          <h3 style={styles.featureTitle}>Guided Tours</h3>
-          <p style={styles.featureDesc}>Book amazing guided tours and experiences in your destination</p>
-        </div>
-
-        <div
-          style={styles.featureCard}
-          onClick={() => navigate('/hotels')}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = palette.accent;
-            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = palette.border;
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <div style={styles.featureIcon}>🏨</div>
-          <h3 style={styles.featureTitle}>Find Hotels</h3>
-          <p style={styles.featureDesc}>
-            Discover amazing hotels in any city with our interactive map
-          </p>
-        </div>
-
-        <div
-          style={styles.featureCard}
-          onClick={() => navigate('/restaurants')}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = palette.accent;
-            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = palette.border;
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <div style={styles.featureIcon}>🗺️</div>
-          <h3 style={styles.featureTitle}>Explore Places</h3>
-          <p style={styles.featureDesc}>Explore tourist attractions and plan your perfect trip</p>
-        </div>
-
-        <div
-          style={styles.featureCard}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = palette.accent;
-            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = palette.border;
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <div style={styles.featureIcon}>🌤️</div>
-          <h3 style={styles.featureTitle}>Weather Info</h3>
-          <p style={styles.featureDesc}>Get real-time weather data for any destination</p>
-        </div>
-
-        <div
-          style={styles.featureCard}
-          onClick={() => navigate('/restaurants')}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = palette.accent;
-            e.currentTarget.style.boxShadow = '0 8px 28px rgba(2, 132, 199, 0.12)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = palette.border;
-            e.currentTarget.style.boxShadow = 'none';
-          }}
-        >
-          <div style={styles.featureIcon}>🍽️</div>
-          <h3 style={styles.featureTitle}>Find Restaurants</h3>
-          <p style={styles.featureDesc}>Search dining options by city for your next meal</p>
+      {/* Feature cards */}
+      <div style={{ background: WHITE, borderTop: `0.5px solid ${BORDER}` }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '72px 24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: 48 }}>
+            <h2 style={{ fontSize: 28, fontWeight: 500, color: TEXT, margin: '0 0 8px' }}>Everything you need to travel</h2>
+            <p style={{ color: MUTED, fontSize: 15 }}>Plan, explore, and book — without the complexity</p>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+            {features.map((f) => (
+              <div
+                key={f.title}
+                onClick={() => f.route && navigate(f.route)}
+                style={{ background: BG, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: '28px 24px', cursor: f.route ? 'pointer' : 'default', transition: 'background 0.15s ease, border-color 0.15s ease' }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = HERO_BG; e.currentTarget.style.borderColor = '#FFD4C2'; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = BG; e.currentTarget.style.borderColor = BORDER; }}
+              >
+                <div style={{ fontSize: 32, marginBottom: 12 }}>{f.icon}</div>
+                <h3 style={{ color: TEXT, fontSize: 16, fontWeight: 500, margin: '0 0 6px' }}>{f.title}</h3>
+                <p style={{ color: MUTED, fontSize: 13, lineHeight: 1.6, margin: 0 }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div style={styles.ctaSection}>
-        <h2 style={styles.ctaTitle}>Ready to Start Your Journey?</h2>
-        <button type="button" style={styles.ctaButton} onClick={() => navigate('/register')}>
-          Get Started Free →
+      {/* CTA */}
+      <div style={{ textAlign: 'center', padding: '72px 24px', background: HERO_BG, borderTop: `0.5px solid ${BORDER}` }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: ACCENT_LIGHT, color: CORAL, borderRadius: 999, padding: '5px 12px', fontSize: 12, fontWeight: 500, marginBottom: 20 }}>
+          Get started today
+        </div>
+        <h2 style={{ color: TEXT, fontSize: 'clamp(26px, 4vw, 36px)', fontWeight: 500, margin: '0 0 20px', letterSpacing: '-0.5px' }}>
+          Ready to start your journey?
+        </h2>
+        <p style={{ color: MUTED, fontSize: 15, marginBottom: 28, maxWidth: 400, margin: '0 auto 28px' }}>
+          Join thousands of travelers who plan their trips with HiddenSpots.
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate('/register')}
+          style={{ background: CORAL, color: WHITE, borderRadius: 999, fontWeight: 500, border: 'none', padding: '12px 32px', fontSize: 15, cursor: 'pointer', fontFamily: 'inherit' }}
+        >
+          Create a free account →
         </button>
       </div>
     </div>

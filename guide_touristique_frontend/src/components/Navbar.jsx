@@ -9,21 +9,24 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <div className="navbar__logo" onClick={() => navigate('/')}>SMIA</div>
-
       <div className="navbar__links">
         <Link to="/" className="navbar__link">Home</Link>
         <Link to="/tours" className="navbar__link">Tours</Link>
         <Link to="/hotels" className="navbar__link">Hotels</Link>
         <Link to="/restaurants" className="navbar__link">Restaurants</Link>
-        {user && !isBusiness() && !isAdmin() && <Link to="/dashboard" className="navbar__link">Dashboard</Link>}
-        {isBusiness() && <Link to="/business-dashboard" className="navbar__link">Dashboard</Link>}
-        {isAdmin() && <Link to="/admin-dashboard" className="navbar__link">Dashboard</Link>}
+        {user && (
+          <Link
+            to={isAdmin() ? '/admin-dashboard' : isBusiness() ? '/business-dashboard' : '/dashboard'}
+            className="navbar__link"
+          >
+            {isAdmin() ? 'Admin' : isBusiness() ? 'Business' : 'Dashboard'}
+          </Link>
+        )}
       </div>
-
       <div className="navbar__actions">
         {user ? (
           <>
-            <span className="navbar__user">Welcome, {user.name || user.email}</span>
+            <span className="navbar__user">Welcome, {user.username || user.name || user.email}</span>
             <button
               className="navbar__button navbar__button--ghost"
               onClick={() => {
