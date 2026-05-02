@@ -13,6 +13,7 @@ const TEXT = '#1A1A1A';
 const MUTED = '#888888';
 const BORDER = '#EEEEEE';
 const WHITE = '#FFFFFF';
+const NAV_OFFSET = 64;
 
 const getWeatherIcon = (code) => {
   if (code === 0) return '☀️';
@@ -25,8 +26,6 @@ const getWeatherIcon = (code) => {
   if (code <= 99) return '⛈️';
   return '🌡️';
 };
-
-const NAV_OFFSET = 64;
 
 const features = [
   { icon: '🎯', title: 'Guided Tours', desc: 'Book curated experiences and guided tours at top destinations', route: '/tours' },
@@ -85,7 +84,8 @@ const HomePage = () => {
     code: daily.weathercode?.[i], rain: daily.precipitation_sum?.[i],
   })) ?? [];
 
-  const SearchBar = () => (
+  // ✅ renderSearchBar comme fonction normale, pas un composant
+  const renderSearchBar = () => (
     <div style={{ display: 'flex', alignItems: 'center', width: '100%', maxWidth: 620, height: 52, background: WHITE, border: `0.5px solid ${BORDER}`, borderRadius: 999, paddingLeft: 20, paddingRight: 6, boxSizing: 'border-box' }}>
       <input
         style={{ flex: 1, border: 'none', background: 'transparent', color: TEXT, fontSize: 15, outline: 'none', fontFamily: 'inherit' }}
@@ -110,7 +110,6 @@ const HomePage = () => {
       {/* Hero */}
       {!hasSearched && (
         <div style={{ background: HERO_BG, minHeight: `calc(100vh - ${NAV_OFFSET}px)`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '48px 24px 80px' }}>
-          {/* Pill badge */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: ACCENT_LIGHT, color: CORAL, borderRadius: 999, padding: '6px 14px', fontSize: 13, fontWeight: 500, marginBottom: 24 }}>
             <span>🌍</span> Discover the world
           </div>
@@ -123,9 +122,8 @@ const HomePage = () => {
             Explore destinations, check the weather, and book unforgettable tours — all in one place.
           </p>
 
-          <SearchBar />
+          {renderSearchBar()}
 
-          {/* Stats bar */}
           <div style={{ display: 'flex', gap: 40, marginTop: 52, flexWrap: 'wrap', justifyContent: 'center' }}>
             {[['200+', 'Tours Available'], ['50+', 'Cities'], ['1000+', 'Happy Travelers']].map(([num, label]) => (
               <div key={label} style={{ textAlign: 'center' }}>
@@ -137,11 +135,11 @@ const HomePage = () => {
         </div>
       )}
 
-      {/* Sticky search on scroll */}
+      {/* Sticky search */}
       {hasSearched && (
         <div style={{ position: 'sticky', top: NAV_OFFSET, zIndex: 50, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(10px)', borderBottom: `0.5px solid ${BORDER}` }}>
           <div style={{ maxWidth: 900, margin: '0 auto', padding: '12px 24px', display: 'flex', alignItems: 'center' }}>
-            <SearchBar />
+            {renderSearchBar()}
           </div>
         </div>
       )}
