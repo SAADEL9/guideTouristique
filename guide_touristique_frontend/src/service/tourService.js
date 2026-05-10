@@ -34,6 +34,14 @@ export const tourService = {
   getPendingTours() {
     return axiosInstance.get("/tours/pending");
   },
+
+  getFilteredTours(params) {
+    return axiosInstance.get("/tours", { params });
+  },
+
+  getTopRated() {
+    return axiosInstance.get("/tours/top-rated");
+  },
 };
 
 export default tourService;

@@ -3,6 +3,7 @@ package com.saad.guideTouristique.controllers;
 import com.saad.guideTouristique.models.*;
 import com.saad.guideTouristique.repository.TourRepository;
 import com.saad.guideTouristique.security.services.UserDetailsImpl;
+import com.saad.guideTouristique.services.TourService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,10 +18,24 @@ public class TourController {
     @Autowired
     TourRepository tourRepository;
 
-    // ✅ PUBLIC — Voir tous les tours approuvés
+    @Autowired
+    TourService tourService;
+
+    // ✅ PUBLIC — Voir tous les tours approuvés (with optional filters)
     @GetMapping
-    public List<Tour> getApprovedTours() {
-        return tourRepository.findByStatus(ETourStatus.APPROVED);
+    public List<Tour> getApprovedTours(
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String language) {
+        return tourService.getFilteredTours(minPrice, maxPrice, minRating, city, language);
+    }
+
+    // ✅ PUBLIC — Top 5 tours by average rating
+    @GetMapping("/top-rated")
+    public List<Tour> getTopRated() {
+        return tourService.getTopRated(5);
     }
 
     // ✅ PUBLIC — Voir un tour spécifique

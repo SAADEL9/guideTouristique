@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class ReviewService {
@@ -106,6 +109,19 @@ public class ReviewService {
             .orElseThrow(() -> new RuntimeException("Review not found"));
         review.setFlagged(true);
         return reviewRepository.save(review);
+    }
+
+    public Map<String, Object> getStats(String establishmentId, EEstablishmentType type) {
+        List<Review> reviews = (type != null
+            ? reviewRepository.findByEstablishmentIdAndEstablishmentType(establishmentId, type)
+            : reviewRepository.findByEstablishmentId(establishmentId))
+            .stream().filter(r -> r.getStatus() == EReviewStatus.APPROVED).collect(Collectors.toList());
+        double avg = reviews.isEmpty() ? 0.0
+            : reviews.stream().mapToInt(Review::getGlobalRating).average().orElse(0.0);
+        Map<String, Object> stats = new HashMap<>();
+        stats.put("averageRating", Math.round(avg * 10.0) / 10.0);
+        stats.put("reviewCount", reviews.size());
+        return stats;
     }
 
     public void deleteReview(String id, String userId, boolean isAdmin) {

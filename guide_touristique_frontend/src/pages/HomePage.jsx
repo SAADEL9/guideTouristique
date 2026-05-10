@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useUnsplash from '../hooks/useUnsplash';
 import useWikipedia from '../hooks/useWikipedia';
 import { searchLocation } from '../api/locationService';
 import { weatherClient } from '../api/externalClients';
+import tourService from '../service/tourService';
 
 const CORAL = '#FF6B35';
 const BG = '#FAFAFA';
@@ -42,6 +43,12 @@ const HomePage = () => {
   const [weatherData, setWeatherData] = useState(null);
   const [error, setError] = useState(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const [topRatedTours, setTopRatedTours] = useState([]);
+
+  useEffect(() => {
+    tourService.getTopRated().then(r => setTopRatedTours(r.data)).catch(() => {});
+  }, []);
 
   const { images, loading: imagesLoading, error: imagesError } = useUnsplash(imageQuery);
   const { description, loading, getDescription } = useWikipedia();
@@ -244,6 +251,71 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+
+      {/* Top Rated Tours */}
+      {topRatedTours.length > 0 && (
+        <div style={{ background: BG, borderTop: `0.5px solid ${BORDER}` }}>
+          <div style={{ maxWidth: 1200, margin: '0 auto', padding: '72px 24px 64px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 32, flexWrap: 'wrap', gap: 12 }}>
+              <div>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: ACCENT_LIGHT, color: CORAL, borderRadius: 999, padding: '5px 12px', fontSize: 12, fontWeight: 500, marginBottom: 10 }}>
+                  ⭐ Top rated
+                </div>
+                <h2 style={{ fontSize: 26, fontWeight: 500, color: TEXT, margin: '0 0 6px', letterSpacing: '-0.5px' }}>Highest rated tours</h2>
+                <p style={{ color: MUTED, fontSize: 14, margin: 0 }}>Loved by our travelers</p>
+              </div>
+              <button
+                onClick={() => navigate('/rankings')}
+                style={{ background: 'transparent', border: `0.5px solid ${BORDER}`, color: TEXT, borderRadius: 999, padding: '8px 20px', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}
+              >
+                See all rankings →
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingBottom: 8, scrollbarWidth: 'none' }}>
+              {topRatedTours.map((tour, idx) => (
+                <div
+                  key={tour.id}
+                  onClick={() => navigate(`/tour/${tour.id}`)}
+                  style={{ minWidth: 260, maxWidth: 260, background: WHITE, border: `0.5px solid ${BORDER}`, borderRadius: 12, overflow: 'hidden', cursor: 'pointer', flexShrink: 0, transition: 'border-color 0.15s ease, background 0.15s ease' }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = '#FFD4C2'; e.currentTarget.style.background = HERO_BG; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.background = WHITE; }}
+                >
+                  <div style={{ position: 'relative', height: 160, overflow: 'hidden' }}>
+                    <img
+                      src={tour.images?.[0] || 'https://via.placeholder.com/400x250?text=Tour'}
+                      alt={tour.title}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                    {/* Rank badge */}
+                    <div style={{ position: 'absolute', top: 10, left: 10, background: CORAL, color: WHITE, borderRadius: 8, padding: '2px 8px', fontSize: 12, fontWeight: 600 }}>
+                      #{idx + 1}
+                    </div>
+                    <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.55)', color: WHITE, borderRadius: 8, padding: '2px 8px', fontSize: 12, fontWeight: 500 }}>
+                      ${tour.price}
+                    </div>
+                  </div>
+                  <div style={{ padding: '14px 16px 16px' }}>
+                    <div style={{ fontSize: 14, fontWeight: 500, color: TEXT, marginBottom: 6, lineHeight: 1.35, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {tour.title}
+                    </div>
+                    <div style={{ fontSize: 12, color: MUTED, marginBottom: 10, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      📍 {tour.meetingPoint || 'Multiple locations'}
+                    </div>
+                    {/* Star rating display */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+                      {[1, 2, 3, 4, 5].map(s => (
+                        <span key={s} style={{ fontSize: 14, color: CORAL }}>★</span>
+                      ))}
+                      <span style={{ fontSize: 12, color: MUTED, marginLeft: 4 }}>{tour.duration} {tour.duration === 1 ? 'day' : 'days'}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* CTA */}
       <div style={{ textAlign: 'center', padding: '72px 24px', background: HERO_BG, borderTop: `0.5px solid ${BORDER}` }}>

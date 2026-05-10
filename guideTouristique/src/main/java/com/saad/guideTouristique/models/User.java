@@ -9,7 +9,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 @Getter
 @Setter
@@ -36,6 +38,8 @@ public class User {
 
     @DBRef
     private Set<Role> roles = new HashSet<>();
+
+    private List<String> favoriteIds = new ArrayList<>();
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;
@@ -105,5 +109,13 @@ public class User {
 
     public void setContactInfo(String contactInfo) {
         this.contactInfo = contactInfo;
+    }
+
+    public List<String> getFavoriteIds() {
+        return favoriteIds;
+    }
+
+    public void setFavoriteIds(List<String> favoriteIds) {
+        this.favoriteIds = favoriteIds;
     }
 }

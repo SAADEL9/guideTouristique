@@ -7,13 +7,16 @@ import {
 } from "@mui/material";
 import {
   LocationOn, AccessTime, CheckCircle, Cancel, Language,
-  EventAvailable, ArrowBackIosNew, ArrowForwardIos, Star
+  EventAvailable, ArrowBackIosNew, ArrowForwardIos, Star,
+  Favorite, FavoriteBorder
 } from "@mui/icons-material";
 import BookingDialog from '../components/BookingDialog';
 import ReviewsList from '../components/Reviews/ReviewsList';
 import AddReviewForm from '../components/Reviews/AddReviewForm';
 import QASection from '../components/QA/QASection';
 import axiosInstance from '../api/AxiosInstance';
+import { useAuth } from '../context/AuthContext';
+import userService from '../service/userService';
 
 const CORAL = '#FF6B35';
 const BG = '#FAFAFA';
@@ -26,13 +29,42 @@ const WHITE = '#FFFFFF';
 
 const TourDetail = () => {
   const { id } = useParams();
+  const { isAuthenticated } = useAuth();
   const [tour, setTour] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [bookingDialog, setBookingDialog] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   useEffect(() => { fetchTour(); }, [id]);
+
+  useEffect(() => {
+    if (isAuthenticated && id) {
+      userService.getFavoriteIds()
+        .then(r => setIsFavorite((r.data || []).includes(id)))
+        .catch(() => {});
+    }
+  }, [isAuthenticated, id]);
+
+  const toggleFavorite = async () => {
+    if (!isAuthenticated) return;
+    setFavoriteLoading(true);
+    try {
+      if (isFavorite) {
+        await userService.removeFavorite(id);
+        setIsFavorite(false);
+      } else {
+        await userService.addFavorite(id);
+        setIsFavorite(true);
+      }
+    } catch (e) {
+      // silently fail
+    } finally {
+      setFavoriteLoading(false);
+    }
+  };
 
   const fetchTour = async () => {
     try {
@@ -198,10 +230,29 @@ const TourDetail = () => {
                     <Typography sx={{ fontSize: 13, color: TEXT, fontWeight: 500 }}>{tour.maxGroupSize} people</Typography>
                   </Box>
 
-                  <Button fullWidth variant="contained" size="large" onClick={() => setBookingDialog(true)}
-                    sx={{ borderRadius: '20px', py: 1.4, fontWeight: 500, fontSize: 15, background: CORAL, '&:hover': { background: '#E85A25' } }}>
-                    Book this tour
-                  </Button>
+                  <Box sx={{ display: 'flex', gap: 1.5, mb: 0 }}>
+                    <Button fullWidth variant="contained" size="large" onClick={() => setBookingDialog(true)}
+                      sx={{ borderRadius: '20px', py: 1.4, fontWeight: 500, fontSize: 15, background: CORAL, '&:hover': { background: '#E85A25' } }}>
+                      Book this tour
+                    </Button>
+                    {isAuthenticated && (
+                      <IconButton
+                        onClick={toggleFavorite}
+                        disabled={favoriteLoading}
+                        sx={{
+                          border: `0.5px solid ${isFavorite ? CORAL : BORDER}`,
+                          borderRadius: '20px',
+                          px: 1.5,
+                          background: isFavorite ? ACCENT_LIGHT : WHITE,
+                          color: isFavorite ? CORAL : MUTED,
+                          flexShrink: 0,
+                          '&:hover': { background: ACCENT_LIGHT, borderColor: CORAL, color: CORAL },
+                        }}
+                      >
+                        {isFavorite ? <Favorite sx={{ fontSize: 20 }} /> : <FavoriteBorder sx={{ fontSize: 20 }} />}
+                      </IconButton>
+                    )}
+                  </Box>
 
                   {/* Star rating teaser */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, justifyContent: 'center', mt: 2 }}>

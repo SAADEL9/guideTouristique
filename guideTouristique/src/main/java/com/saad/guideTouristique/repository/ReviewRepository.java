@@ -13,4 +13,5 @@ public interface ReviewRepository extends MongoRepository<Review, String> {
     List<Review> findByUserId(String userId);
     List<Review> findByStatus(EReviewStatus status);
     List<Review> findByFlagged(boolean flagged);
+    List<Review> findByEstablishmentTypeAndStatus(EEstablishmentType type, EReviewStatus status);
 }

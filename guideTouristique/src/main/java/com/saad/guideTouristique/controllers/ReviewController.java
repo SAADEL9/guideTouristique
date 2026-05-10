@@ -120,6 +120,13 @@ public class ReviewController {
         }
     }
 
+    // PUBLIC — Review stats (average rating + count) for an establishment
+    @GetMapping("/stats/{establishmentId}/{establishmentType}")
+    public ResponseEntity<?> getStats(@PathVariable String establishmentId,
+                                      @PathVariable EEstablishmentType establishmentType) {
+        return ResponseEntity.ok(reviewService.getStats(establishmentId, establishmentType));
+    }
+
     // ADMIN or AUTHOR — Delete review
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteReview(@PathVariable String id,

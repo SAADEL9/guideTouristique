@@ -22,6 +22,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import HotelsPage from './pages/HotelsPage';
 import HotelDetailPage from './pages/HotelDetailPage';
 import RestaurantsPage from './pages/RestaurantsPage';
+import RankingsPage from './pages/RankingsPage';
 
 // ✅ STRIPE IMPORTS
 import { loadStripe } from '@stripe/stripe-js';
@@ -51,6 +52,7 @@ function App() {
                 <Route path="/business-register" element={<BusinessRegister />} />
                 <Route path="/tours" element={<ToursList />} />
                 <Route path="/tour/:id" element={<TourDetail />} />
+                <Route path="/rankings" element={<RankingsPage />} />
 
                 <Route path="/dashboard" element={
                   <PrivateRoute><Dashboard /></PrivateRoute>

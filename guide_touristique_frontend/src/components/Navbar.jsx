@@ -8,7 +8,7 @@ const Navbar = () => {
 
   return (
     <nav className="navbar">
-      <div className="navbar__logo" onClick={() => navigate('/')}>SMIA</div>
+      <div className="navbar__logo" onClick={() => navigate('/')}>TRIPOVA</div>
       <div className="navbar__links">
         <Link to="/" className="navbar__link">Home</Link>
         <Link to="/tours" className="navbar__link">Tours</Link>
