@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: guidetouristique-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./guideTouristique
+      dockerfile: Dockerfile
+    container_name: guidetouristique-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATA_MONGODB_HOST=host.docker.internal
+      - SPRING_DATA_MONGODB_PORT=27017
+      - SPRING_DATA_MONGODB_DATABASE=guideTouristique_db
+      - SAAD_APP_JWTSECRET=NyZXRLZXkyMDI1SGlkZGVuU3BvdHNTZWNyZXRL8741FPNLFUND73BS57NF02KSudz985fd
+      - SAAD_APP_JWTEXPIRATIONMS=86400000
+      - GEOAPIFY_API_KEY=37f3b34b9a5645be803c6038d8428e36
+      - LITEAPI_KEY=sand_e9b04c72-b135-46b8-8950-79de0b87a91f
+      - STRIPE_SECRET_KEY=sk_test_51TPQjY9mNGGcSs5RJYJhiyUtMvnqnAKEP7oirdG2Nej7tKqjJSjIpYRI3fVBXEqCGe1eFru3rQJJCGH0jVLzZQ8N00TtieWuBa
+
+    depends_on:
+      []
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./guide_touristique_frontend
+      dockerfile: Dockerfile
+    container_name: guidetouristique-frontend
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+volumes:
+  mongo_data:
+
+networks:
+  app-network:
+    driver: bridge
