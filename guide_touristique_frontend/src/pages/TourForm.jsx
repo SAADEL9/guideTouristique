@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import axiosInstance from '../api/AxiosInstance';
 import {
   Container, Typography, Box, TextField, Button, Card, CardContent,
@@ -9,6 +9,9 @@ import { Add, Delete, CloudUpload } from "@mui/icons-material";
 
 const TourForm = () => {
   const navigate = useNavigate();
+  const { id } = useParams();
+  const isEditMode = Boolean(id);
+
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -33,8 +36,38 @@ const TourForm = () => {
   });
 
   const [loading, setLoading] = useState(false);
+  const [fetchingTour, setFetchingTour] = useState(isEditMode);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+
+  useEffect(() => {
+    if (!isEditMode) return;
+    const fetchTour = async () => {
+      try {
+        const res = await axiosInstance.get(`/tours/${id}`);
+        const t = res.data;
+        setFormData({
+          title: t.title || '',
+          description: t.description || '',
+          price: t.price !== undefined ? String(t.price) : '',
+          duration: t.duration !== undefined ? String(t.duration) : '',
+          maxGroupSize: t.maxGroupSize !== undefined ? String(t.maxGroupSize) : '',
+          meetingPoint: t.meetingPoint || '',
+          activities: t.activities || [],
+          availableDates: t.availableDates || [],
+          languages: t.languages || [],
+          included: t.included || [],
+          notIncluded: t.notIncluded || [],
+          images: t.images || []
+        });
+      } catch (err) {
+        setError('Impossible de charger le tour.');
+      } finally {
+        setFetchingTour(false);
+      }
+    };
+    fetchTour();
+  }, [id, isEditMode]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -101,21 +134,35 @@ const TourForm = () => {
         images: formData.images
       };
 
-      await axiosInstance.post('/tours', tourData);
-
-      setSuccess('Tour created! Pending admin approval.');
+      if (isEditMode) {
+        await axiosInstance.put(`/tours/${id}`, tourData);
+        setSuccess('Tour mis à jour avec succès !');
+      } else {
+        await axiosInstance.post('/tours', tourData);
+        setSuccess('Tour créé ! En attente de validation admin.');
+      }
       setTimeout(() => navigate('/business-dashboard'), 2000);
     } catch (err) {
-      const backendMessage = err.response?.data?.message || err.response?.data?.error || err.response?.data || 'Failed to create tour';
+      const backendMessage = err.response?.data?.message || err.response?.data?.error || err.response?.data || (isEditMode ? 'Échec de la mise à jour' : 'Échec de la création');
       setError(typeof backendMessage === 'string' ? backendMessage : JSON.stringify(backendMessage));
     } finally {
       setLoading(false);
     }
   };
 
+  if (fetchingTour) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 8, display: 'flex', justifyContent: 'center' }}>
+        <CircularProgress />
+      </Container>
+    );
+  }
+
   return (
     <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Typography variant="h4" gutterBottom>Create New Tour</Typography>
+      <Typography variant="h4" gutterBottom>
+        {isEditMode ? 'Modifier le Tour' : 'Créer un Nouveau Tour'}
+      </Typography>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
       {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
@@ -268,7 +315,7 @@ const TourForm = () => {
             </Card>
 
             <Button type="submit" variant="contained" size="large" fullWidth disabled={loading} sx={{ py: 1.8 }}>
-              {loading ? <CircularProgress size={24} color="inherit" /> : 'CREATE TOUR'}
+              {loading ? <CircularProgress size={24} color="inherit" /> : (isEditMode ? 'METTRE À JOUR' : 'CRÉER LE TOUR')}
             </Button>
 
           </Box>

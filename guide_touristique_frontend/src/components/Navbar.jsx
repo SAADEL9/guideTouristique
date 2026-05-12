@@ -14,12 +14,12 @@ const Navbar = () => {
         <Link to="/tours" className="navbar__link">Tours</Link>
         <Link to="/hotels" className="navbar__link">Hotels</Link>
         <Link to="/restaurants" className="navbar__link">Restaurants</Link>
-        {user && (
+        {user && (isAdmin() || isBusiness()) && (
           <Link
-            to={isAdmin() ? '/admin-dashboard' : isBusiness() ? '/business-dashboard' : '/dashboard'}
+            to={isAdmin() ? '/admin-dashboard' : '/business-dashboard'}
             className="navbar__link"
           >
-            {isAdmin() ? 'Admin' : isBusiness() ? 'Business' : 'Dashboard'}
+            {isAdmin() ? 'Admin' : 'Business'}
           </Link>
         )}
       </div>

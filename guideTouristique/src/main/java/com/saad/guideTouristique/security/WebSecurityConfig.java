@@ -99,6 +99,7 @@ public class WebSecurityConfig {
                         // TOURS
                         .requestMatchers(HttpMethod.GET, "/api/tours/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/tours/**").hasAuthority("ROLE_BUSINESS")
+                        .requestMatchers(HttpMethod.PUT, "/api/tours/*/status").hasAuthority("ROLE_ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/tours/**").hasAuthority("ROLE_BUSINESS")
                         .requestMatchers(HttpMethod.DELETE, "/api/tours/**").hasAuthority("ROLE_BUSINESS")
 

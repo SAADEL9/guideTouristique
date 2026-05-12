@@ -87,19 +87,21 @@ const ToursList = () => {
   return (
     <Box sx={{ background: BG, minHeight: '100vh', pb: 8 }}>
       {/* Page header */}
-      <Box sx={{ background: HERO_BG, borderBottom: `0.5px solid ${BORDER}`, py: { xs: 5, md: 7 }, px: 3, textAlign: 'center' }}>
-        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.8, background: ACCENT_LIGHT, color: CORAL, borderRadius: 999, px: 1.5, py: 0.5, fontSize: 12, fontWeight: 500, mb: 2 }}>
+      <Box sx={{ background: HERO_BG, borderBottom: `0.5px solid ${BORDER}`, py: { xs: 2, md: 3 }, px: 3, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+        <Box>
+          <Typography sx={{ fontSize: { xs: 18, md: 22 }, fontWeight: 500, color: TEXT, letterSpacing: '-0.3px' }}>
+            Tours
+          </Typography>
+          <Typography sx={{ color: MUTED, fontSize: 13 }}>
+            {tours.length} tours available
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.8, background: ACCENT_LIGHT, color: CORAL, borderRadius: 999, px: 1.5, py: 0.5, fontSize: 12, fontWeight: 500 }}>
           🎯 Explore our tours
         </Box>
-        <Typography sx={{ fontSize: { xs: 28, md: 36 }, fontWeight: 500, color: TEXT, letterSpacing: '-0.5px', mb: 1 }}>
-          Find your perfect tour
-        </Typography>
-        <Typography sx={{ color: MUTED, fontSize: 15 }}>
-          {tours.length} tours available
-        </Typography>
       </Box>
 
-      <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 4 }, pt: 4 }}>
+      <Box sx={{ maxWidth: 1200, mx: 'auto', px: { xs: 2, md: 4 }, pt: 3 }}>
         {error && <Alert severity="error" sx={{ mb: 3, borderRadius: 2 }}>{error}</Alert>}
 
         <Box sx={{ display: 'flex', gap: 4, alignItems: 'flex-start' }}>
@@ -238,50 +240,46 @@ const ToursList = () => {
                 </Button>
               </Box>
             ) : (
-              <Grid container spacing={2.5}>
+              <Grid container spacing={2}>
                 {displayed.map((tour) => (
-                  <Grid item xs={12} sm={6} lg={4} key={tour.id}>
+                  <Grid item xs={6} sm={4} lg={3} key={tour.id}>
                     <Card
                       onClick={() => navigate(`/tour/${tour.id}`)}
                       sx={{
                         cursor: 'pointer', height: '100%', display: 'flex', flexDirection: 'column',
-                        borderRadius: '12px', border: `0.5px solid ${BORDER}`, background: WHITE,
+                        borderRadius: '10px', border: `0.5px solid ${BORDER}`, background: WHITE,
                         transition: 'border-color 0.15s ease, background 0.15s ease',
                         '&:hover': { borderColor: '#FFD4C2', background: HERO_BG },
                       }}
                     >
-                      <Box sx={{ position: 'relative', overflow: 'hidden', paddingTop: '62%', borderRadius: '12px 12px 0 0' }}>
+                      <Box sx={{ position: 'relative', overflow: 'hidden', paddingTop: '52%', borderRadius: '10px 10px 0 0' }}>
                         <CardMedia
                           component="img"
                           image={tour.images?.[0] || 'https://via.placeholder.com/400x250?text=Tour'}
                           alt={tour.title}
                           sx={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', transition: 'transform 0.3s ease', '&:hover': { transform: 'scale(1.03)' } }}
                         />
-                        <Box sx={{ position: 'absolute', top: 12, right: 12, background: CORAL, color: WHITE, borderRadius: '10px', px: 1.2, py: 0.4, fontSize: 13, fontWeight: 500 }}>
+                        <Box sx={{ position: 'absolute', top: 8, right: 8, background: CORAL, color: WHITE, borderRadius: '8px', px: 1, py: 0.3, fontSize: 12, fontWeight: 500 }}>
                           ${tour.price}
                         </Box>
                       </Box>
 
-                      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 2.5, pb: '20px !important' }}>
-                        <Typography sx={{ fontWeight: 500, fontSize: 15, color: TEXT, mb: 0.75, lineHeight: 1.3 }}>
+                      <CardContent sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column', p: 1.5, pb: '12px !important' }}>
+                        <Typography sx={{ fontWeight: 500, fontSize: 13, color: TEXT, mb: 0.5, lineHeight: 1.3 }}>
                           {tour.title}
                         </Typography>
 
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mb: 1.5 }}>
-                          <LocationOn sx={{ fontSize: 13, color: MUTED }} />
-                          <Typography sx={{ fontSize: 12, color: MUTED }}>{tour.meetingPoint || 'Multiple locations'}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4, mb: 1 }}>
+                          <LocationOn sx={{ fontSize: 12, color: MUTED }} />
+                          <Typography sx={{ fontSize: 11, color: MUTED, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tour.meetingPoint || 'Multiple locations'}</Typography>
                         </Box>
 
-                        <Typography sx={{ fontSize: 13, color: MUTED, mb: 2, flexGrow: 1, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.55 }}>
-                          {tour.description}
-                        </Typography>
-
-                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-                            <AccessTime sx={{ fontSize: 13, color: MUTED }} />
-                            <Typography sx={{ fontSize: 12, color: MUTED }}>{tour.duration} {tour.duration === 1 ? 'day' : 'days'}</Typography>
+                        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 'auto' }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.4 }}>
+                            <AccessTime sx={{ fontSize: 12, color: MUTED }} />
+                            <Typography sx={{ fontSize: 11, color: MUTED }}>{tour.duration} {tour.duration === 1 ? 'day' : 'days'}</Typography>
                           </Box>
-                          <Typography sx={{ fontSize: 13, color: CORAL, fontWeight: 500 }}>View →</Typography>
+                          <Typography sx={{ fontSize: 12, color: CORAL, fontWeight: 500 }}>View →</Typography>
                         </Box>
                       </CardContent>
                     </Card>

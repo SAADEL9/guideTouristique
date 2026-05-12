@@ -10,6 +10,45 @@ const MUTED = '#888888';
 const BORDER = '#EEEEEE';
 const WHITE = '#FFFFFF';
 
+const GEOAPIFY_KEY = process.env.REACT_APP_GEOAPIFY_KEY;
+
+const getMapImageUrl = (lat, lon) => {
+  if (!lat || !lon || !GEOAPIFY_KEY) return null;
+  return `https://maps.geoapify.com/v1/staticmap?style=osm-bright-smooth&width=600&height=300&center=lonlat:${lon},${lat}&zoom=16&marker=lonlat:${lon},${lat};type:awesome;color:%23FF6B35;size:small&apiKey=${GEOAPIFY_KEY}`;
+};
+
+const RestaurantCard = ({ r, index }) => {
+  const [imgError, setImgError] = React.useState(false);
+
+  const imgSrc = r.photoUrl
+    || `https://loremflickr.com/640/320/food,restaurant?lock=${index}`;
+
+  return (
+    <div
+      style={{ background: WHITE, border: `0.5px solid ${BORDER}`, borderRadius: 12, overflow: 'hidden', transition: 'border-color 0.15s' }}
+      onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#FFD4C2'; }}
+      onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; }}
+    >
+      {!imgError ? (
+        <img
+          src={imgSrc}
+          alt={r.name}
+          style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
+          onError={() => setImgError(true)}
+        />
+      ) : (
+        <div style={{ width: '100%', height: 160, background: ACCENT_LIGHT, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>
+          🍽️
+        </div>
+      )}
+      <div style={{ padding: '14px 16px' }}>
+        <p style={{ fontSize: 14, fontWeight: 500, color: TEXT, margin: '0 0 5px' }}>{r.name || 'Restaurant'}</p>
+        <p style={{ fontSize: 12, color: MUTED, margin: 0, lineHeight: 1.5 }}>📍 {r.address || 'Address not available'}</p>
+      </div>
+    </div>
+  );
+};
+
 const RestaurantsPage = () => {
   const [city, setCity] = useState('');
   const [searchedCity, setSearchedCity] = useState('');
@@ -78,17 +117,9 @@ const RestaurantsPage = () => {
         )}
 
         {!loading && !error && restaurants.length > 0 && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 14 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
             {restaurants.map((r, idx) => (
-              <div
-                key={r.id ?? `${r.name}-${idx}`}
-                style={{ background: WHITE, border: `0.5px solid ${BORDER}`, borderRadius: 12, padding: '20px 22px', transition: 'border-color 0.15s, background 0.15s' }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#FFD4C2'; e.currentTarget.style.background = HERO_BG; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = BORDER; e.currentTarget.style.background = WHITE; }}
-              >
-                <p style={{ fontSize: 15, fontWeight: 500, color: TEXT, margin: '0 0 6px' }}>{r.name || 'Restaurant'}</p>
-                <p style={{ fontSize: 13, color: MUTED, margin: 0, lineHeight: 1.5 }}>📍 {r.address || 'Address not available'}</p>
-              </div>
+              <RestaurantCard key={r.id ?? `${r.name}-${idx}`} r={r} index={idx + 1} />
             ))}
           </div>
         )}

@@ -21,4 +21,11 @@ public class WebClientConfig {
                 .baseUrl("https://api.liteapi.travel")
                 .build();
     }
+
+    @Bean("googleMapsClient")
+    public WebClient googleMapsWebClient() {
+        return WebClient.builder()
+                .baseUrl("https://maps.googleapis.com")
+                .build();
+    }
 }

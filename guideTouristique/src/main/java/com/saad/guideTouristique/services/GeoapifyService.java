@@ -1,6 +1,7 @@
 package com.saad.guideTouristique.services;
 
 import com.saad.guideTouristique.payload.response.PlaceDTO;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -13,12 +14,17 @@ import java.util.stream.Collectors;
 public class GeoapifyService {
 
     private final WebClient webClient;
+    private final WebClient googleMapsClient;
 
     @Value("${geoapify.api.key}")
     private String apiKey;
 
-    public GeoapifyService(WebClient webClient) {
+    @Value("${google.maps.api.key}")
+    private String googleMapsApiKey;
+
+    public GeoapifyService(WebClient webClient, @Qualifier("googleMapsClient") WebClient googleMapsClient) {
         this.webClient = webClient;
+        this.googleMapsClient = googleMapsClient;
     }
 
     // ─── Geocode city → get lat/lon ───────────────────────────────────────
@@ -79,9 +85,48 @@ public class GeoapifyService {
         }).collect(Collectors.toList());
     }
 
+    // ─── Fetch Google Places photo URL for a restaurant ──────────────────
+    private String fetchGooglePlacesPhoto(String name, double lat, double lon) {
+        try {
+            Map response = googleMapsClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/maps/api/place/findplacefromtext/json")
+                            .queryParam("input", name)
+                            .queryParam("inputtype", "textquery")
+                            .queryParam("locationbias", "point:" + lat + "," + lon)
+                            .queryParam("fields", "photos")
+                            .queryParam("key", googleMapsApiKey)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            List<Map> candidates = (List<Map>) response.get("candidates");
+            if (candidates == null || candidates.isEmpty()) return null;
+
+            List<Map> photos = (List<Map>) candidates.get(0).get("photos");
+            if (photos == null || photos.isEmpty()) return null;
+
+            String photoRef = (String) photos.get(0).get("photo_reference");
+            if (photoRef == null) return null;
+
+            return "https://maps.googleapis.com/maps/api/place/photo"
+                    + "?maxwidth=600&photo_reference=" + photoRef
+                    + "&key=" + googleMapsApiKey;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     // ─── Public methods called by controller ──────────────────────────────
     public List<PlaceDTO> getRestaurants(String city) {
-        return fetchPlaces(city, "catering.restaurant");
+        List<PlaceDTO> restaurants = fetchPlaces(city, "catering.restaurant");
+        restaurants.forEach(r -> {
+            if (r.getName() != null && r.getLat() != null && r.getLon() != null) {
+                r.setPhotoUrl(fetchGooglePlacesPhoto(r.getName(), r.getLat(), r.getLon()));
+            }
+        });
+        return restaurants;
     }
 
     public List<PlaceDTO> getHotels(String city) {

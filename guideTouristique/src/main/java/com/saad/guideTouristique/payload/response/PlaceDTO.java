@@ -6,6 +6,7 @@ public class PlaceDTO {
     private String address;
     private Double lat;
     private Double lon;
+    private String photoUrl;
 
     public PlaceDTO() {}
 
@@ -15,7 +16,6 @@ public class PlaceDTO {
         this.lat = lat;
         this.lon = lon;
     }
-
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -28,4 +28,7 @@ public class PlaceDTO {
 
     public Double getLon() { return lon; }
     public void setLon(Double lon) { this.lon = lon; }
+
+    public String getPhotoUrl() { return photoUrl; }
+    public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
 }
